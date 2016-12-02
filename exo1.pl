@@ -15,6 +15,7 @@ echo(T) :- echo_on, !, write(T).
 echo(_).
 
 
+
 regle(X, decompose) :-
 	arg(1, X, Y),
 	arg(2, X, Z),
@@ -23,9 +24,26 @@ regle(X, decompose) :-
 	NA == NB,
 	AA == AB.
 
-	
+regle(X ?= T):- regle(X ?= T, simplify).
+
+
+% Definitions des Transformations
 
 rename(X,T):-
 	var(T),
 	var(X),
 	X = T.
+
+  % Simplify
+  simplify(X?=T):-
+    atomic(T),
+    var(X),
+    X = T.
+
+  % Orient
+  orient(T?=X):-
+    not(var(T)),
+    Z = T,
+    T = X,
+    X = Z.
+
