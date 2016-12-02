@@ -13,3 +13,19 @@ clr_echo :- retractall(echo_on).
 
 echo(T) :- echo_on, !, write(T).
 echo(_).
+
+
+regle(X, decompose) :-
+	arg(1, X, Y),
+	arg(2, X, Z),
+	functor(Y, NA, AA),
+	functor(Z, NB, AB),
+	NA == NB,
+	AA == AB.
+
+	
+
+rename(X,T):-
+	var(T),
+	var(X),
+	X = T.
