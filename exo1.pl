@@ -14,12 +14,32 @@ clr_echo :- retractall(echo_on).
 echo(T) :- echo_on, !, write(T).
 echo(_).
 
-% Definitions des Regles
+% Definitions des Transformations
 
   regle(X ?= T):- regle(X ?= T, simplify).
 
+  % Simplify
   simplify(X?=T):-
     atomic(T),
     var(X),
     X = T.
 
+  % Orient
+  orient(T?=X):-
+    not(var(T)),
+    Z = T,
+    T = X,
+    X = Z.
+
+
+%unifie(P) :- regle(E).
+
+%regle(E, simplify):-
+    
+
+
+%occur_check(V, T).
+
+%reduit(R,E,P,Q).
+
+%decompose().
