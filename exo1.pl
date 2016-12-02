@@ -13,3 +13,13 @@ clr_echo :- retractall(echo_on).
 
 echo(T) :- echo_on, !, write(T).
 echo(_).
+
+% Definitions des Regles
+
+  regle(X ?= T):- regle(X ?= T, simplify).
+
+  simplify(X?=T):-
+    atomic(T),
+    var(X),
+    X = T.
+
