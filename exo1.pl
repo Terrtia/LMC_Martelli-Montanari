@@ -15,35 +15,44 @@ echo(T) :- echo_on, !, write(T).
 echo(_).
 
 
-
-regle(X, decompose) :-
-	arg(1, X, Y),
-	arg(2, X, Z),
-	functor(Y, NA, AA),
-	functor(Z, NB, AB),
-	NA == NB,
-	AA == AB.
-
-regle(X ?= T):- regle(X ?= T, simplify).
+% Tests
+regle(X?=T):-
+	regle(X?=T,expand).
 
 
 % Definitions des Transformations
 
-rename(X,T):-
+% Rename
+rename(X?=T):-
 	var(T),
 	var(X),
 	X = T.
 
-  % Simplify
-  simplify(X?=T):-
-    atomic(T),
-    var(X),
-    X = T.
+% Simplify
+simplify(X?=T):-
+	atomic(T),
+	var(X),
+	X = T.
 
-  % Orient
-  orient(T?=X):-
-    not(var(T)),
-    Z = T,
-    T = X,
-    X = Z.
+% Orient
+orient(T?=X):-
+	not(var(T)),
+	Z = T,
+	T = X,
+	X = Z.
 
+% Check
+check(X?=T):-
+	var(X),
+	X == T,
+	term_variables(T,L),
+	not(memberchk(X,L)).
+
+% Expand
+expand(X?=T):-
+	var(X),
+	not(atomic(T)),
+	not(var(T)),
+	term_variables(T,L),
+	not(memberchk(X,L)),
+	X = T.
