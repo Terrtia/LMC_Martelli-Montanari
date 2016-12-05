@@ -41,18 +41,23 @@ orient(T?=X):-
 	T = X,
 	X = Z.
 
-% Check
+
+% Occur_check - finie
+occur_check(V,T):-
+	compound(T),
+	var(V),
+	contains_var(V,T).
+
+% Check - en cours
 check(X?=T):-
 	var(X),
-	X == T,
-	term_variables(T,L),
-	not(memberchk(X,L)).
+	not(X == T),
+	occur_check(X,T).
 
-% Expand
+% Expand - finie
 expand(X?=T):-
 	var(X),
 	not(atomic(T)),
 	not(var(T)),
-	term_variables(T,L),
-	not(memberchk(X,L)),
+	occur_check(X,T),
 	X = T.
