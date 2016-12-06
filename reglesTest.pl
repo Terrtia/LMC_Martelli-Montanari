@@ -1,27 +1,33 @@
-regle(X,T,rename):-
+regle(E, rename):-
+	splitEquation(E,X,T),
 	var(T),
 	var(X).
 
-regle(X,T,simplify):-
+regle(E, simplify):-
+	splitEquation(E,X,T),
 	atomic(T),
 	var(X).
 
-regle(X,T,orient):-
+regle(E, orient):-
+	splitEquation(E,T,X),
 	var(X),
 	nonvar(T).
 
-regle(X,T,check):-
+regle(E, check):-
+	splitEquation(E,X,T),
 	var(X),
 	not(X==T),
 	occur_check(X,T).
 
-regle(X,T,expand):-
+regle(E, expand):-
+	splitEquation(E,X,T),
 	var(X),
 	not(atomic(T)),
 	nonvar(T),
 	occur_check(X,T).
 
-regle(S,T,decompose):-
+regle(E, decompose):-
+	splitEquation(E,S,T),
 	compound(S),
 	compound(T),
 	functor(S,NameS,ArityS),
@@ -29,7 +35,8 @@ regle(S,T,decompose):-
 	NameS == NameT,
 	ArityS == ArityT.
 
-regle(S,T,clash):- % revoir le double return
+regle(E, clash):- % revoir le double return
+	splitEquation(E,S,T),
 	compound(S),
 	compound(T),
 	functor(S,NameS,ArityS),

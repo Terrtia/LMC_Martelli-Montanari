@@ -1,51 +1,78 @@
 % Ajout d'autres fichiers pour simplier le code principal
 
 :-
-	[operateurs],
-	[predicatsRelais],
-	[reglesTest].
+	[operateurs], % ?= , echo
+	[predicatsRelais], % splitEquation , upto
+	[reglesTest]. % test de validité sur chaque regle
 
 % Prédicats
 
-% Occur_check - finie
+% Occur_check
 occur_check(V,T):-
 	compound(T),
 	var(V),
 	contains_var(V,T).
 
-% Regle - en cours
-regle(E,R):-
-	splitEquation(E,X,T),
-	regle(X,T,R).
+% unification
+unifie(P):-
+	%unifie(P, strategy).
+	unifie(P, simplify).
+
+unifie([], _) :- true, !.
+unifie([]) :- false, !.
+
+unifie(P, strategy):-
+	P = [E |L],
+	%regle(E, strategy),
+	regle(E, simplify),
+	%reduit(R, E, P, Q),
+	reduit(simplify, E, P, Q),
+	%unifie(Q, strategy).
+	unifie(Q, simplify).
+
 
 % Transformation du système d'équations P en un système d'équations Q par application de la règle de transformation à l'équation E
 
+
+% reduit sur regle decompose - en cours
+reduit(decompose,E,P,Q):-
+	splitEquation(E,X,T),
+	% X = f(a)
+	% Y = f(b)
+	regle(X,T,decompose),
+	functor(X,NameX,ArityX),
+	functor(T,NameT,ArityT),
+	forall(upto(1,ArityX,1,IndiceArg),append(arg(IndiceArg,X,ValueX) ?= arg(IndiceArg,T,ValueT),Q,Q)).
+
+
 reduit(rename, E, P, Q):-
 	splitEquation(E,X,T),
+	X = T,
 	.
 
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
+	X = T,
 	.
 
 reduit(expand, E, P, Q):-
 	splitEquation(E,X,T),
+	
 	.
 
 reduit(check, E, P, Q):-
-	splitEquation(E,X,T),
-	.
+	fail,
+	!.
 
 reduit(orient, E, P, Q):-
 	splitEquation(E,X,T),
+	
 	.
 
-reduit(decompose, E, P, Q):-
-	.
 
 reduit(clash, E, P, Q):-
-	splitEquation(E,X,T),
-	.
+	fail,
+	!.
 
 
 % Definitions des Transformations
