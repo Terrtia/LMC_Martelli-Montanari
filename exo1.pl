@@ -18,13 +18,34 @@ regle(E,R):-
 	splitEquation(E,X,T),
 	regle(X,T,R).
 
+% Transformation du système d'équations P en un système d'équations Q par application de la règle de transformation à l'équation E
 
+reduit(rename, E, P, Q):-
+	splitEquation(E,X,T),
+	.
 
-% pour nico -> faire le réduit sur la règle decompose
+reduit(simplify, E, P, Q):-
+	splitEquation(E,X,T),
+	.
 
+reduit(expand, E, P, Q):-
+	splitEquation(E,X,T),
+	.
 
+reduit(check, E, P, Q):-
+	splitEquation(E,X,T),
+	.
 
+reduit(orient, E, P, Q):-
+	splitEquation(E,X,T),
+	.
 
+reduit(decompose, E, P, Q):-
+	.
+
+reduit(clash, E, P, Q):-
+	splitEquation(E,X,T),
+	.
 
 
 % Definitions des Transformations
