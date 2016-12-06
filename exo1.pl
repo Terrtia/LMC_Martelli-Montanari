@@ -21,11 +21,44 @@ echo(T) :-
 
 echo(_).
 
+% Prédicats
 
-% Tests
-regle(X?=T):-
-	regle(X?=T,expand).
+% Occur_check - finie
+occur_check(V,T):-
+	compound(T),
+	var(V),
+	contains_var(V,T).
 
+% Regle - en cours
+regle(E,R):-
+	.
+
+regle(X?=T,rename):-
+	var(T),
+	var(X).
+
+regle(X?=T,simplify):-
+	atomic(T),
+	var(X).
+
+regle(X?=T,orient):-
+	var(X),
+	nonvar(T).
+
+regle(X?=T,check):-
+	.
+
+regle(X?=T,expand):-
+	var(X),
+	not(atomic(T)),
+	nonvar(T),
+	occur_check(X,T).
+
+regle(X?=T,decompose):-
+	.
+
+regle(X?=T,clash):-
+	.
 
 % Definitions des Transformations
 
@@ -48,13 +81,6 @@ orient(T?=X):-
 	Z = T,
 	T = X,
 	X = Z.
-
-
-% Occur_check - finie
-occur_check(V,T):-
-	compound(T),
-	var(V),
-	contains_var(V,T).
 
 % Check - en cours - difficile
 check(X?=T):-
