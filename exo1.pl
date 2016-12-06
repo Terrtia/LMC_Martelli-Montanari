@@ -48,7 +48,7 @@ occur_check(V,T):-
 % Regle - en cours
 regle(E,R):-
 	splitEquation(E,X,T),
-	regle(X,T,rename).
+	regle(X,T,R).
 
 regle(X,T,rename):-
 	var(T),
