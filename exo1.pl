@@ -19,7 +19,7 @@ unifie(P):-
 	unifie(P, simplify).
 
 unifie([], _) :- true, !.
-unifie([]) :- false, !.
+%unifie([]) :- false.
 
 unifie(P, strategy):-
 	P = [E |L],
@@ -35,39 +35,44 @@ unifie(P, strategy):-
 
 
 % reduit sur regle decompose - en cours
-reduit(decompose,E,P,Q):-
-	splitEquation(E,X,T),
-	% X = f(a)
-	% Y = f(b)
-	regle(X,T,decompose),
-	functor(X,NameX,ArityX),
-	functor(T,NameT,ArityT),
-	forall(upto(1,ArityX,1,IndiceArg),append(arg(IndiceArg,X,ValueX) ?= arg(IndiceArg,T,ValueT),Q,Q)).
+%reduit(decompose,E,P,Q):-
+%	splitEquation(E,X,T),
+%	% X = f(a)
+%	% Y = f(b)
+%	regle(X,T,decompose),
+%	functor(X,NameX,ArityX),
+%	functor(T,NameT,ArityT),
+%	forall(upto(1,ArityX,1,IndiceArg),append(arg(IndiceArg,X,ValueX) ?= arg(IndiceArg,T,ValueT),Q,Q)).
 
 
-reduit(rename, E, P, Q):-
-	splitEquation(E,X,T),
-	X = T,
-	.
+%reduit(rename, E, P, Q):-
+%	splitEquation(E,X,T),
+%	X = T.
+
+delete_elem(_, [], []) :- !.
+delete_elem(Elem, [Elem|Set], Set):- ! .
+delete_elem(Elem, [E|Set], [E|R]):-
+	delete_elem(Elem, Set, R).
 
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
-	.
+	delete_elem(E,P,Q).
+%	Q = [X = T | Q],
+%	write(Q),
+%	X = T,
+%	P = [_ |Tail]. % suppression du premier élément de la liste
+%	P = Tail. % P = queue de la liste
 
 reduit(expand, E, P, Q):-
-	splitEquation(E,X,T),
-	
-	.
+	splitEquation(E,X,T).
 
 reduit(check, E, P, Q):-
 	fail,
 	!.
 
 reduit(orient, E, P, Q):-
-	splitEquation(E,X,T),
-	
-	.
+	splitEquation(E,X,T).
 
 
 reduit(clash, E, P, Q):-

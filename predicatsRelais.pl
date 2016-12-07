@@ -11,3 +11,18 @@ upto(Low,High,Step,Var) :-
 	Inc is Low+Step,
 	Inc =< High,
 	upto(Inc, High, Step, Var).
+
+%renommage(X,T,SystemEquation):-
+%	functor(SystemEquation,Name,Arity),
+%	Arity >= 1,
+%	SystemEquation = [Head | Tail],
+%	renommageHead(X,T,Head),
+%	renommage(X,T,Tail).
+%
+%renommageHead(X,T,Head):-
+%	
+
+
+
+
+
