@@ -57,7 +57,7 @@ delete_elem(Elem, [E|Set], [E|R]):-
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
-	delete_elem(E,P,Q).
+	delete_elem(E,P,P).
 %	Q = [X = T | Q],
 %	write(Q),
 %	X = T,
