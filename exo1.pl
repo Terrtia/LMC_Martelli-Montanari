@@ -14,8 +14,8 @@ occur_check(V,T):-
 	contains_var(V,T).
 
 % unification
-unifie([]) :- false.
-unifie([], _) :- true.
+unifie([], _) :- echo('\n Success'), true, !.
+unifie([]) :- echo('\n Echec'), false, !.
 
 
 unifie(P):-
