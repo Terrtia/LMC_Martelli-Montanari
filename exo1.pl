@@ -21,13 +21,10 @@ unifie(P):-
 unifie([], _) :- true, !.
 %unifie([]) :- false.
 
-unifie(P, strategy):-
+unifie(P, simplify):-
 	P = [E |L],
-	%regle(E, strategy),
 	regle(E, simplify),
-	%reduit(R, E, P, Q),
-	reduit(simplify, E, P, Q),
-	%unifie(Q, strategy).
+	reduit(simplify, E, [X ?= T | Tail], Q),
 	unifie(Q, simplify).
 
 
@@ -51,11 +48,11 @@ unifie(P, strategy):-
 
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
-	[Head|Tail] = P,
-	Q = [X = T|[]],
+	simplify(X?=T, [X ?= T |Tail], Q).
+
+simplify(X ?= T, [X ?= T |Tail], Q):-
 	X = T,
-	write(Q),
-	write(Tail).
+	Q = Tail.
 
 reduit(expand, E, P, Q):-
 	splitEquation(E,X,T).
