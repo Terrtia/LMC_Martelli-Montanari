@@ -44,6 +44,31 @@ unifie(P, simplify):-
 	regle(E, simplify),
 	reduit(simplify, E, [E | Tail], Q).
 
+unifie(P, expand):-
+	P = [E |L],
+	regle(E, expand),
+	reduit(expand, E, [E | Tail], Q).
+
+unifie(P, check):-
+	P = [E |L],
+	regle(E, check),
+	reduit(check, E, [E | Tail], Q).
+
+unifie(P, orient):-
+	P = [E |L],
+	regle(E, orient),
+	reduit(orient, E, [E | Tail], Q).
+
+unifie(P, decompose):-
+	P = [E |L],
+	regle(E, decompose),
+	reduit(decompose, E, [E | Tail], Q).
+
+unifie(P, clash):-
+	P = [E |L],
+	regle(E, clash),
+	reduit(clash, E, [E | Tail], Q).
+
 
 % Transformation du système d'équations P en un système d'équations Q par application de la règle de transformation à l'équation E
 
