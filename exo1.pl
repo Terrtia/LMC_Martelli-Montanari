@@ -49,20 +49,13 @@ unifie(P, strategy):-
 %	splitEquation(E,X,T),
 %	X = T.
 
-delete_elem(_, [], []) :- !.
-delete_elem(Elem, [Elem|Set], Set):- ! .
-delete_elem(Elem, [E|Set], [E|R]):-
-	delete_elem(Elem, Set, R).
-
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
+	[Head|Tail] = P,
+	Q = [X = T|[]],
 	X = T,
-	delete_elem(E,P,P).
-%	Q = [X = T | Q],
-%	write(Q),
-%	X = T,
-%	P = [_ |Tail]. % suppression du premier élément de la liste
-%	P = Tail. % P = queue de la liste
+	write(Q),
+	write(Tail).
 
 reduit(expand, E, P, Q):-
 	splitEquation(E,X,T).
