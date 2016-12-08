@@ -14,18 +14,35 @@ occur_check(V,T):-
 	contains_var(V,T).
 
 % unification
-unifie(P):-
-	%unifie(P, strategy).
-	unifie(P, simplify).
+unifie([]) :- false.
+unifie([], _) :- true.
 
-unifie([], _) :- true, !.
-%unifie([]) :- false.
+
+unifie(P):-
+	unifie(P, regle),
+	!.
+
+unifie(P, regle):- unifie(P, rename),!,unifie(Q, regle).
+unifie(P, regle):- unifie(P, simplify),!,unifie(Q, regle).
+unifie(P, regle):- unifie(P, expand),!,unifie(Q, regle).
+unifie(P, regle):- unifie(P, check),!,unifie(Q, regle).
+unifie(P, regle):- unifie(P, orient),!,unifie(Q, regle).
+unifie(P, regle):- unifie(P, decompose),!,unifie(Q, regle).
+unifie(P, regle):- unifie(P, clash),!,unifie(Q, regle).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+unifie(P, rename) :- 
+	P = [E |L],
+	regle(E, rename),
+	reduit(rename, E, [E | Tail], Q),
+	!.
+
 
 unifie(P, simplify):-
 	P = [E |L],
 	regle(E, simplify),
-	reduit(simplify, E, [X ?= T | Tail], Q),
-	unifie(Q, simplify).
+	reduit(simplify, E, [E | Tail], Q).
 
 
 % Transformation du système d'équations P en un système d'équations Q par application de la règle de transformation à l'équation E
@@ -42,17 +59,20 @@ unifie(P, simplify):-
 %	forall(upto(1,ArityX,1,IndiceArg),append(arg(IndiceArg,X,ValueX) ?= arg(IndiceArg,T,ValueT),Q,Q)).
 
 
-%reduit(rename, E, P, Q):-
-%	splitEquation(E,X,T),
-%	X = T.
+reduit(rename, E, P, Q):-
+	splitEquation(E,X,T),
+	X = T,
+	Q = Tail.
 
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
-	simplify(X?=T, [X ?= T |Tail], Q).
-
-simplify(X ?= T, [X ?= T |Tail], Q):-
 	X = T,
 	Q = Tail.
+	%simplify(X?=T, [X ?= T |Tail], Q).
+
+%simplify(X ?= T, [X ?= T |Tail], Q):-
+	%X = T,
+	%Q = Tail.
 
 reduit(expand, E, P, Q):-
 	splitEquation(E,X,T).
