@@ -22,51 +22,58 @@ unifie(P):-
 	unifie(P, regle),
 	!.
 
-unifie(P, regle):- unifie(P, rename),!,unifie(Q, regle).
-unifie(P, regle):- unifie(P, simplify),!,unifie(Q, regle).
-unifie(P, regle):- unifie(P, expand),!,unifie(Q, regle).
-unifie(P, regle):- unifie(P, check),!,unifie(Q, regle).
-unifie(P, regle):- unifie(P, orient),!,unifie(Q, regle).
-unifie(P, regle):- unifie(P, decompose),!,unifie(Q, regle).
-unifie(P, regle):- unifie(P, clash),!,unifie(Q, regle).
+unifie(P, regle):- unifie(P, rename).
+unifie(P, regle):- unifie(P, simplify).
+unifie(P, regle):- unifie(P, expand).
+unifie(P, regle):- unifie(P, check).
+unifie(P, regle):- unifie(P, orient).
+unifie(P, regle):- unifie(P, decompose).
+unifie(P, regle):- unifie(P, clash).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 unifie(P, rename) :- 
 	P = [E |L],
 	regle(E, rename),
-	reduit(rename, E, P, Q),write(Q).
+	reduit(rename, E, P, Q),
+	unifie(Q, regle),!.
 
 
 unifie(P, simplify):-
 	P = [E |L],
 	regle(E, simplify),
-	reduit(simplify, E, P, Q),write(Q).
+	reduit(simplify, E, P, Q),
+	unifie(Q, regle),!.
 
 unifie(P, expand):-
 	P = [E |L],
 	regle(E, expand),
-	reduit(expand, E, P, Q).
+	reduit(expand, E, P, Q),
+	unifie(Q, regle),!.
 
 unifie(P, check):-
 	P = [E |L],
 	regle(E, check),
-	reduit(check, E, P, Q).
+	reduit(check, E, P, Q),
+	unifie(Q, regle),!.
 
 unifie(P, orient):-
 	P = [E |L],
 	regle(E, orient),
-	reduit(orient, E, P, Q).
+	reduit(orient, E, P, Q),
+	unifie(Q, regle),!.
 
 unifie(P, decompose):-
 	P = [E |L],
 	regle(E, decompose),
-	reduit(decompose, E, P, Q).
+	reduit(decompose, E, P, Q),
+	unifie(Q, regle),!.
 
 unifie(P, clash):-
 	P = [E |L],
 	regle(E, clash),
-	reduit(clash, E, P, Q).
+	reduit(clash, E, P, Q),
+	unifie(Q, regle),!.
 
 
 % Transformation du système d'équations P en un système d'équations Q par application de la règle de transformation à l'équation E
@@ -90,11 +97,7 @@ reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
 	P = [Head|Q].
-	%simplify(X?=T, [X ?= T |Tail], Q).
 
-%simplify(X ?= T, [X ?= T |Tail], Q):-
-	%X = T,
-	%Q = Tail.
 
 reduit(expand, E, P, Q):-
 	splitEquation(E,X,T).
