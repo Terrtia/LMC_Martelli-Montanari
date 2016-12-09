@@ -35,14 +35,15 @@ unifie(P, regle):- unifie(P, clash),!,unifie(Q, regle).
 unifie(P, rename) :- 
 	P = [E |L],
 	regle(E, rename),
-	reduit(rename, E, [E | Tail], Q),
+	reduit(rename, E, P, Q),
 	!.
 
 
 unifie(P, simplify):-
 	P = [E |L],
 	regle(E, simplify),
-	reduit(simplify, E, [E | Tail], Q).
+	reduit(simplify, E, P, Q)
+	write(Q).
 
 unifie(P, expand):-
 	P = [E |L],
@@ -87,17 +88,15 @@ unifie(P, clash):-
 reduit(rename, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
-	Q = Tail.
+	P = [Tail | Q].
 
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
-	Q = Tail.
-	%simplify(X?=T, [X ?= T |Tail], Q).
+	P = [Tail | Q],
+	Q = Q.
 
-%simplify(X ?= T, [X ?= T |Tail], Q):-
-	%X = T,
-	%Q = Tail.
+
 
 reduit(expand, E, P, Q):-
 	splitEquation(E,X,T).
