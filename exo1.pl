@@ -35,39 +35,38 @@ unifie(P, regle):- unifie(P, clash),!,unifie(Q, regle).
 unifie(P, rename) :- 
 	P = [E |L],
 	regle(E, rename),
-	reduit(rename, E, [E | Tail], Q),
-	!.
+	reduit(rename, E, P, Q),write(Q).
 
 
 unifie(P, simplify):-
 	P = [E |L],
 	regle(E, simplify),
-	reduit(simplify, E, [E | Tail], Q).
+	reduit(simplify, E, P, Q),write(Q).
 
 unifie(P, expand):-
 	P = [E |L],
 	regle(E, expand),
-	reduit(expand, E, [E | Tail], Q).
+	reduit(expand, E, P, Q).
 
 unifie(P, check):-
 	P = [E |L],
 	regle(E, check),
-	reduit(check, E, [E | Tail], Q).
+	reduit(check, E, P, Q).
 
 unifie(P, orient):-
 	P = [E |L],
 	regle(E, orient),
-	reduit(orient, E, [E | Tail], Q).
+	reduit(orient, E, P, Q).
 
 unifie(P, decompose):-
 	P = [E |L],
 	regle(E, decompose),
-	reduit(decompose, E, [E | Tail], Q).
+	reduit(decompose, E, P, Q).
 
 unifie(P, clash):-
 	P = [E |L],
 	regle(E, clash),
-	reduit(clash, E, [E | Tail], Q).
+	reduit(clash, E, P, Q).
 
 
 % Transformation du système d'équations P en un système d'équations Q par application de la règle de transformation à l'équation E
@@ -87,12 +86,12 @@ unifie(P, clash):-
 reduit(rename, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
-	Q = Tail.
+	P = [Head|Q].
 
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
-	Q = Tail.
+	P = [Head|Q].
 	%simplify(X?=T, [X ?= T |Tail], Q).
 
 %simplify(X ?= T, [X ?= T |Tail], Q):-
