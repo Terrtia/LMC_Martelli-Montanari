@@ -24,7 +24,7 @@ regle(E, expand):-
 	var(X),
 	not(atomic(T)),
 	nonvar(T),
-	occur_check(X,T).
+	not(occur_check(X,T)).
 
 regle(E, decompose):-
 	splitEquation(E,S,T),

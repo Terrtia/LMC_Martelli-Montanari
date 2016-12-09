@@ -22,7 +22,3 @@ upto(Low,High,Step,Var) :-
 %renommageHead(X,T,Head):-
 %	
 
-
-
-
-

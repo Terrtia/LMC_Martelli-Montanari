@@ -33,44 +33,44 @@ unifie(P, regle):- unifie(P, clash).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 unifie(P, rename) :- 
-	P = [E |L],
+	P = [E |_],
 	regle(E, rename),
 	reduit(rename, E, P, Q),
 	unifie(Q, regle),!.
 
 
 unifie(P, simplify):-
-	P = [E |L],
+	P = [E |_],
 	regle(E, simplify),
 	reduit(simplify, E, P, Q),
 	unifie(Q, regle),!.
 
 unifie(P, expand):-
-	P = [E |L],
+	P = [E |_],
 	regle(E, expand),
 	reduit(expand, E, P, Q),
 	unifie(Q, regle),!.
 
 unifie(P, check):-
-	P = [E |L],
+	P = [E |_],
 	regle(E, check),
 	reduit(check, E, P, Q),
 	unifie(Q, regle),!.
 
 unifie(P, orient):-
-	P = [E |L],
+	P = [E |_],
 	regle(E, orient),
 	reduit(orient, E, P, Q),
 	unifie(Q, regle),!.
 
 unifie(P, decompose):-
-	P = [E |L],
+	P = [E |_],
 	regle(E, decompose),
 	reduit(decompose, E, P, Q),
 	unifie(Q, regle),!.
 
 unifie(P, clash):-
-	P = [E |L],
+	P = [E |_],
 	regle(E, clash),
 	reduit(clash, E, P, Q),
 	unifie(Q, regle),!.
@@ -82,37 +82,46 @@ unifie(P, clash):-
 % reduit sur regle decompose - en cours
 reduit(decompose, E, P, Q):-
 	splitEquation(E,X,T),
-	functor(X,NameX,ArityX),
-	functor(T,NameT,ArityT),
-	
-	forall(upto(1,ArityX,1,IndiceArg), write(IndiceArg)).
+	functor(X,_,ArityX),
+	functor(T,_,_),
+	P = [_|Tail],
+	repet(X,T,ArityX,Tail,Q),write(Q).
 
+repet(_,_,0,T,Q):- Q = T, !.
+repet(X,T,N,Tail,Q) :-
+	N > 0,
+	arg(N,X,ValX),
+	arg(N,T,ValT),
+	Var = [ValX?=ValT|Tail],
+	N1 is N - 1,
+	repet(X,T,N1,Var,Q).
 
 reduit(rename, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
-	P = [Head|Q].
+	P = [_|Q].
 
 reduit(simplify, E, P, Q):-
 	splitEquation(E,X,T),
 	X = T,
-	P = [Head|Q].
-
+	P = [_|Q].
 
 reduit(expand, E, P, Q):-
-	splitEquation(E,X,T).
+	splitEquation(E,X,T),
+	X = T,
+	P = [_|Q].
 
-reduit(check, E, P, Q):-
+reduit(check, _, _, _):-
 	fail,
 	!.
 
 reduit(orient, E, P, Q):-
-	splitEquation(E,X,T).
-	P = [_|Q],
-	Q = [X ?= T | []],write(Q).
+	splitEquation(E,X,T),
+	P = [_|Tail],
+	Q = [T ?= X | Tail].
 
 
-reduit(clash, E, P, Q):-
+reduit(clash, _, _, _):-
 	fail,
 	!.
 
