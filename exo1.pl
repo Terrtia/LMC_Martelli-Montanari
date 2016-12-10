@@ -13,6 +13,19 @@ occur_check(V,T):-
 	var(V),
 	contains_var(V,T).
 
+% unif
+unif(P,S) :-
+	clr_echo,
+	unifie(P,S).
+
+% trace_unif
+trace_unif(P,S) :-
+	set_echo,
+	(unifie(P,S),
+	 echo("Yes"),
+	 !;
+	 echo("No")).
+
 % unification
 unifie([], _) :- echo('\n Success'), true, !.
 unifie([]) :- echo('\n Echec'), false, !.
@@ -85,7 +98,7 @@ reduit(decompose, E, P, Q):-
 	functor(X,_,ArityX),
 	functor(T,_,_),
 	P = [_|Tail],
-	repet(X,T,ArityX,Tail,Q),write(Q).
+	repet(X,T,ArityX,Tail,Q).
 
 repet(_,_,0,T,Q):- Q = T, !.
 repet(X,T,N,Tail,Q) :-

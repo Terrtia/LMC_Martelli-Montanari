@@ -1,8 +1,104 @@
-\documentclass[11pt]{article}
+\documentclass[10pt,a4paper]{report}
+
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{lipsum}
+\usepackage{setspace}
+
+\hypersetup{
+	colorlinks,
+	citecolor=black,
+	filecolor=black,
+	linkcolor=black,
+	urlcolor=black
+}
+
+
+%%configuration de listings
+\lstset{
+	language=Prolog,
+	basicstyle=\ttfamily\small, %
+	identifierstyle=\color{red}, %
+	keywordstyle=\color{blue}, %
+	numberstyle=\color{green},
+	stringstyle=\color{black!60}, %
+	commentstyle=\it\color{green}, %
+	columns=flexible, %
+	tabsize=2, %
+	extendedchars=true, %
+	showspaces=false, %
+	showstringspaces=false, %
+	numbers=left, %
+	numberstyle=\tiny, %
+	breaklines=true, %
+	breakautoindent=true, %
+	captionpos=b,
+	backgroundcolor=\color{Zgris},
+	captionpos = b 
+}
+
+\definecolor{Zgris}{rgb}{0.87,0.85,0.85}
+\newcommand{\HRule}{\rule{\linewidth}{1mm}}
+\newsavebox{\BBbox}
+\newenvironment{DDbox}[1]{
+	\begin{lrbox}{\BBbox}\begin{minipage}{\linewidth}}
+		{\end{minipage}\end{lrbox}\noindent\colorbox{Zgris}{\usebox{\BBbox}} \\
+	[.5cm]}
+
+% Redefine the plain page style
+
+%\headsep = 25pt
+
+\fancypagestyle{plain}{%
+	\fancyhf{}
+	%header
+	\fancyhead[L]{Rapport de projet}
+	\fancyhead[R]{\ifnum\value{part}>0 \partname\ \thepart \fi}
+	\renewcommand{\headrulewidth}{0.4pt}% Line at the header visible
+	%footer
+	\fancyfoot[L]{Baptiste Lesquoy et Nicolas Weissenbach}
+	\fancyfoot[C]{\thepage}
+	\fancyfoot[R]{\today}%
+	\renewcommand{\footrulewidth}{0.4pt}% Line at the footer visible
+}
+
+
+\geometry{
+	a4paper,
+	total={210mm,297mm},
+	left=20mm,
+	right=20mm,
+	top=20mm,
+	bottom=20mm,
+}
 
 \begin{document}
-	This is my first LateX document.
-	$$(16 + 64) = 80$$
-	But
-	$$(1663 + 1) = 1664$$
+\begin{titlepage}
+    \begin{center}
+      ~\\[4cm]
+      \textsc{\LARGE Université de Lorraine}\\[1.5cm]
+      \includegraphics{univ.jpg}\\
+      \textsc{\Large Faculté de Science et Technologie}\\[0.5cm]
+      \textsc{\Large Master 1 Informatique}\\[0.5cm]
+      \HRule \\[0.4cm]
+      { \huge \bfseries Projet de LMC \\[0.4cm] }
+      \HRule \\[1cm]
+     \textsc{\LARGE Algorithme d'unification \\ ~ \\ Martelli Montanari }\\[1cm]
+      \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}r@{}}
+	\emph{Auteurs:}\\
+	Aurélien \textsc{Thirion} \\
+	Nicolas \textsc{Blin}\\
+      \end{tabular*}
+      \vfill
+      {\large \today}
+    \end{center}
+  \end{titlepage}
 \end{document}
