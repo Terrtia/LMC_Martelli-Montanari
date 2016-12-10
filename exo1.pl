@@ -2,8 +2,8 @@
 
 :-
 	[operateurs], % ?= , echo
-	[predicatsRelais], % splitEquation , upto
-	[reglesTest]. % test de validité sur chaque regle
+	[predicatsRelais], % splitEquation
+	[reglesTest]. % test de validité sur chaque règle
 
 % Prédicats
 
@@ -27,8 +27,8 @@ trace_unif(P,S) :-
 	 echo("No")).
 
 % unification
-unifie([], _) :- echo('\n Success'), true, !.
-unifie([]) :- echo('\n Echec'), false, !.
+unifie([], _) :- !.
+unifie([]) :- !.
 
 
 unifie(P):-
@@ -98,7 +98,8 @@ reduit(decompose, E, P, Q):-
 	functor(X,_,ArityX),
 	functor(T,_,_),
 	P = [_|Tail],
-	repet(X,T,ArityX,Tail,Q).
+	repet(X,T,ArityX,Tail,Q),
+	echo("decompose: "),echo(Q),nl.
 
 repet(_,_,0,T,Q):- Q = T, !.
 repet(X,T,N,Tail,Q) :-

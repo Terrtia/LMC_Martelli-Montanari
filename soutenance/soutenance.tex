@@ -5,13 +5,13 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage{listings}
-\usepackage{xcolor}
 \usepackage{geometry}
 \usepackage{fancyhdr}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{lipsum}
 \usepackage{setspace}
+\usepackage[dvipsnames]{xcolor}
 
 \hypersetup{
 	colorlinks,
@@ -21,31 +21,30 @@
 	urlcolor=black
 }
 
+\definecolor{mygray}{RGB}{233,233,233}
 
-%%configuration de listings
 \lstset{
 	language=Prolog,
-	basicstyle=\ttfamily\small, %
-	identifierstyle=\color{red}, %
-	keywordstyle=\color{blue}, %
+	basicstyle=\ttfamily\small,
+	identifierstyle=\color{Cerulean},
+	keywordstyle=\color{blue},
 	numberstyle=\color{green},
-	stringstyle=\color{black!60}, %
-	commentstyle=\it\color{green}, %
-	columns=flexible, %
-	tabsize=2, %
-	extendedchars=true, %
-	showspaces=false, %
-	showstringspaces=false, %
-	numbers=left, %
-	numberstyle=\tiny, %
-	breaklines=true, %
-	breakautoindent=true, %
+	stringstyle=\color{black!60},
+	commentstyle=\it\color{green},
+	columns=flexible,
+	tabsize=4,
+	extendedchars=true,
+	showspaces=false,
+	showstringspaces=false,
+	numbers=left,
+	numberstyle=\small,
+	breaklines=true,
+	breakautoindent=true,
 	captionpos=b,
-	backgroundcolor=\color{Zgris},
+	backgroundcolor=\color{mygray},
 	captionpos = b 
 }
 
-\definecolor{Zgris}{rgb}{0.87,0.85,0.85}
 \newcommand{\HRule}{\rule{\linewidth}{1mm}}
 \newsavebox{\BBbox}
 \newenvironment{DDbox}[1]{
@@ -53,21 +52,15 @@
 		{\end{minipage}\end{lrbox}\noindent\colorbox{Zgris}{\usebox{\BBbox}} \\
 	[.5cm]}
 
-% Redefine the plain page style
-
-%\headsep = 25pt
-
-\fancypagestyle{plain}{%
+\fancypagestyle{plain}{
 	\fancyhf{}
-	%header
-	\fancyhead[L]{Rapport de projet}
+	\fancyhead[L]{Soutenance}
 	\fancyhead[R]{\ifnum\value{part}>0 \partname\ \thepart \fi}
-	\renewcommand{\headrulewidth}{0.4pt}% Line at the header visible
-	%footer
-	\fancyfoot[L]{Baptiste Lesquoy et Nicolas Weissenbach}
+	\renewcommand{\headrulewidth}{0.4pt}
+	\fancyfoot[L]{Aurélien Thirion et Nicolas Blin}
 	\fancyfoot[C]{\thepage}
-	\fancyfoot[R]{\today}%
-	\renewcommand{\footrulewidth}{0.4pt}% Line at the footer visible
+	\fancyfoot[R]{\today}
+	\renewcommand{\footrulewidth}{0.4pt}
 }
 
 
@@ -84,21 +77,210 @@
 \begin{titlepage}
     \begin{center}
       ~\\[4cm]
-      \textsc{\LARGE Université de Lorraine}\\[1.5cm]
-      \includegraphics{univ.jpg}\\
+      \textsc{\huge Université de Lorraine}\\[1.0cm]
+      \includegraphics{univr.jpg}\\[0.5cm]
       \textsc{\Large Faculté de Science et Technologie}\\[0.5cm]
       \textsc{\Large Master 1 Informatique}\\[0.5cm]
       \HRule \\[0.4cm]
       { \huge \bfseries Projet de LMC \\[0.4cm] }
       \HRule \\[1cm]
-     \textsc{\LARGE Algorithme d'unification \\ ~ \\ Martelli Montanari }\\[1cm]
-      \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}r@{}}
+     \textsc{\LARGE Algorithme d'unification \\ ~ \\ Martelli Montanari }\\[4cm]
 	\emph{Auteurs:}\\
 	Aurélien \textsc{Thirion} \\
 	Nicolas \textsc{Blin}\\
-      \end{tabular*}
       \vfill
       {\large \today}
     \end{center}
   \end{titlepage}
+
+
+
+
+
+
+
+
+\chapter*{Introduction}
+Nous avons voulu, dans ce projet, essayer d'être le plus clair et simple possible en
+disposant dans différents fichiers le code source de notre programme. Ainsi dans le code
+principal, il y a le minimum de ligne pour comprendre réellement de processus de
+l'unification de Martelli-Montanari. Notre code principal se situe dans \textbf{main.pl}, des
+prédicats sont appelés lors du processus dans les fichiers suivants : \textbf{operateur.pl} ,
+\textbf{predicatsRelais.pl} et \textbf{reglesTest.pl}.\\[1cm]
+
+\begin{center}
+\textbf{operateur.pl}\\
+Contient l'opérateur \textbf{?=} et le code pour le echo contenu dans le mail.\\[1cm]
+\textbf{predicatsRelais.pl}\\
+Fonction de décomposition d'une équation E pour obtenir la partie gauche de
+l'opérateur \textbf{?=} et la partie droite.\\[1cm]
+\textbf{reglesTest.pl}\\
+Toutes les conditions nécessaire pour appliquer la réduction (prédicat reduit(R,E,P,Q)).\\[1cm]
+\end{center}
+
+
+
+
+
+\chapter*{Question 1}
+\paragraph{Mise en place} ~\\
+\begin{lstlisting}[caption ={Dans le fichier $main.pl$}]
+:-
+	[operateurs],
+	[predicatsRelais],
+	[reglesTest].
+\end{lstlisting} ~\\
+Un exemple du prédicat regle(E,R) dans le code :
+\begin{lstlisting}[caption ={Dans le fichier $main.pl$}]
+regle(E,rename)
+\end{lstlisting}~\\
+Qui va appeler le prédicat dans le fichier \textbf{reglesTest.pl} :
+\begin{lstlisting}[caption ={Dans le fichier $reglesTest.pl$}]
+regle(E, rename):-
+	splitEquation(E,X,T),
+	var(T),
+	var(X).
+\end{lstlisting}~\\
+Qui va appeler le prédicat dans le fichier \textbf{predicatsRelais.pl} :
+\begin{lstlisting}[caption ={Dans le fichier $predicatsRelais.pl$}]
+splitEquation(E,X,T):-
+	arg(1,E,L),
+	arg(2,E,R),
+	X = L,
+	T = R.
+\end{lstlisting}
+
+
+
+\mbox{}
+\newpage
+\chapter*{Code source}
+\paragraph{Dans le main} ~\\
+\begin{lstlisting}[caption ={$main.pl$}]
+occur_check(V,T):-
+	compound(T),
+	var(V),
+	contains_var(V,T).
+
+unif(P,S) :-
+	clr_echo,
+	unifie(P,S).
+
+trace_unif(P,S) :-
+	set_echo,
+	(unifie(P,S),
+	 echo("Yes"),
+	 !;
+	 echo("No")).
+
+unifie([], _) :- !.
+unifie([]) :- !.
+
+
+unifie(P):-
+	unifie(P, regle),
+	!.
+
+unifie(P, regle):- unifie(P, rename).
+unifie(P, regle):- unifie(P, simplify).
+unifie(P, regle):- unifie(P, expand).
+unifie(P, regle):- unifie(P, check).
+unifie(P, regle):- unifie(P, orient).
+unifie(P, regle):- unifie(P, decompose).
+unifie(P, regle):- unifie(P, clash).
+
+
+unifie(P, rename) :- 
+	P = [E |_],
+	regle(E, rename),
+	reduit(rename, E, P, Q),
+	unifie(Q, regle),!.
+
+
+unifie(P, simplify):-
+	P = [E |_],
+	regle(E, simplify),
+	reduit(simplify, E, P, Q),
+	unifie(Q, regle),!.
+
+unifie(P, expand):-
+	P = [E |_],
+	regle(E, expand),
+	reduit(expand, E, P, Q),
+	unifie(Q, regle),!.
+
+unifie(P, check):-
+	P = [E |_],
+	regle(E, check),
+	reduit(check, E, P, Q),
+	unifie(Q, regle),!.
+
+unifie(P, orient):-
+	P = [E |_],
+	regle(E, orient),
+	reduit(orient, E, P, Q),
+	unifie(Q, regle),!.
+
+unifie(P, decompose):-
+	P = [E |_],
+	regle(E, decompose),
+	reduit(decompose, E, P, Q),
+	unifie(Q, regle),!.
+
+unifie(P, clash):-
+	P = [E |_],
+	regle(E, clash),
+	reduit(clash, E, P, Q),
+	unifie(Q, regle),!.
+
+
+reduit(decompose, E, P, Q):-
+	splitEquation(E,X,T),
+	functor(X,_,ArityX),
+	functor(T,_,_),
+	P = [_|Tail],
+	repet(X,T,ArityX,Tail,Q),
+	echo("decompose: "),echo(Q),nl.
+
+repet(_,_,0,T,Q):- Q = T, !.
+repet(X,T,N,Tail,Q) :-
+	N > 0,
+	arg(N,X,ValX),
+	arg(N,T,ValT),
+	Var = [ValX?=ValT|Tail],
+	N1 is N - 1,
+	repet(X,T,N1,Var,Q).
+
+reduit(rename, E, P, Q):-
+	splitEquation(E,X,T),
+	X = T,
+	P = [_|Q].
+
+reduit(simplify, E, P, Q):-
+	splitEquation(E,X,T),
+	X = T,
+	P = [_|Q].
+
+reduit(expand, E, P, Q):-
+	splitEquation(E,X,T),
+	X = T,
+	P = [_|Q].
+
+reduit(check, _, _, _):-
+	fail,
+	!.
+
+reduit(orient, E, P, Q):-
+	splitEquation(E,X,T),
+	P = [_|Tail],
+	Q = [T ?= X | Tail].
+
+
+reduit(clash, _, _, _):-
+	fail,
+	!.
+\end{lstlisting}
+
+
+
 \end{document}
