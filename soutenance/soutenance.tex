@@ -44,7 +44,7 @@
 	captionpos = b 
 }
 
-\newcommand{\HRule}{\rule{\linewidth}{1mm}}
+\newcommand{\HRule}{\rule{\linewidth}{2mm}}
 \newsavebox{\BBbox}
 \newenvironment{DDbox}[1]{
 	\begin{lrbox}{\BBbox}\begin{minipage}{\linewidth}}
@@ -79,11 +79,11 @@
       \textsc{\huge Université de Lorraine}\\[1.0cm]
       \includegraphics{univr.jpg}\\[0.5cm]
       \textsc{\Large Faculté de Science et Technologie}\\[0.5cm]
-      \textsc{\Large Master 1 Informatique}\\[0.5cm]
+      \textsc{\Large M1 Informatique}\\[1cm]
       \HRule \\[0.4cm]
-      { \huge \bfseries Projet de LMC \\[0.4cm] }
+      { \huge \bfseries Martelli Montanari \\[0.4cm] }
       \HRule \\[1cm]
-     \textsc{\LARGE Algorithme d'unification \\ ~ \\ Martelli Montanari }\\[4cm]
+     \textsc{\LARGE Algorithme d'unification \\ ~ \\ Projet de LMC }\\[4cm]
 	\emph{Auteurs:}\\
 	Aurélien \textsc{Thirion} \\
 	Nicolas \textsc{Blin}\\
@@ -163,6 +163,8 @@ occur_check(V,T):-
 Voici un exemple de $reduit$ qui se charge d'appliquer la règle rename.
 \begin{lstlisting}[caption ={reduit dans $main.pl$}]
 reduit(rename, E, P, Q):-
+	echo("system: "),echo(P),nl,
+	echo("rename: "),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
@@ -174,6 +176,38 @@ reduit(rename, E, P, Q):-
 
 \chapter*{Question 2}
 \paragraph{Dans le main} ~\\
+
+
+
+\mbox{}
+\newpage
+\chapter*{Question 3}
+\paragraph{Dans le main} ~\\
+Pour le prédicat $unif$, il s'agit simplement de désativer le echo puis d'appeler le prédicat $unifie$.
+\begin{lstlisting}[caption ={unif dans $main.pl$}]
+unif(P,S) :-
+	clr_echo,
+	unifie(P,S).
+\end{lstlisting} ~\\
+Pour le prédicat $trace_unif$, il faut activer le echo en précisant que si l'unification marche il y aura affiché un "Yes" ou un "No" dans le cas contraire.
+\begin{lstlisting}[caption ={trace unif dans $main.pl$}]
+trace_unif(P,S) :-
+	set_echo,
+	(unifie(P,S),
+	 echo("Yes"),
+	 !;
+	 echo("No")).
+\end{lstlisting} ~\\
+Une fois que ces prédcats sont fait, il suffit de mettre les echo dans le code qui sera commun aux différentes stratégies. Ainsi nous aurons par exemple dans le prédicat $reduit$ :
+\begin{lstlisting}[caption ={Les echos dans $main.pl$}]
+reduit(rename, E, P, Q):-
+	echo("system: "),echo(P),nl,
+	echo("rename: "),echo(E),nl,
+	splitEquation(E,X,T),
+	X = T,
+	P = [_|Q].
+\end{lstlisting} ~\\
+
 
 
 

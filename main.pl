@@ -106,10 +106,10 @@ choix_pondere(P, [], _, 4):-
 	choix_pondere(P, P, _, 5),
 	!.
 
-% on à appliqué toutes les régles sans succé, Echec de l'unification
+% on a appliqué toutes les régles sans succés, échec de l'unification
 choix_pondere(_, [], _, 5):-
-	echo('\n'),
-	echo('\t fail'),
+%	echo('\n'),
+%	echo('\t fail'),
 	fail,
 	!.
 
@@ -118,18 +118,18 @@ choix_pondere(_, [], _, 5):-
 %%%% clash, check
 
 %clash
-choix_pondere(P, [Head|_], _, 1):-
+choix_pondere(_, [Head|_], _, 1):-
 	regle(Head , clash),
 	!,
-	echo('\t fail clash'),
+%	echo('\t fail clash'),
 	fail,
 	!.
 
 %check
-choix_pondere(P, [Head|_], _, 1):-
+choix_pondere(_, [Head|_], _, 1):-
 	regle(Head, check),
 	!,
-	echo('\t fail check'),
+%	echo('\t fail check'),
 	fail,
 	!.
 
@@ -339,7 +339,7 @@ reduit(expand, E, P, Q):-
 	X = T,
 	P = [_|Q].
 
-reduit(check, _, _, _):-
+reduit(check, E, P, _):-
 	echo("system: "),echo(P),nl,
 	echo("check: "),echo(E),nl,
 	fail,
@@ -353,7 +353,7 @@ reduit(orient, E, P, Q):-
 	Q = [T ?= X | Tail].
 
 
-reduit(clash, _, _, _):-
+reduit(clash, E, P, _):-
 	echo("system: "),echo(P),nl,
 	echo("clash: "),echo(E),nl,
 	fail,
