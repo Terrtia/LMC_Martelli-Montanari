@@ -2,8 +2,8 @@
 
 :-
 	[operateurs], % ?= , echo
-	[predicatsRelais], % splitEquation , upto
-	[reglesTest]. % test de validité sur chaque regle
+	[predicatsRelais], % splitEquation
+	[reglesTest]. % test de validité sur chaque règle
 
 % Prédicats
 
@@ -27,8 +27,8 @@ trace_unif(P,S) :-
 	 echo("No")).
 
 % unification
-unifie([], _) :- echo('\n Success'), true, !.
-unifie([]) :- echo('\n Echec'), false, !.
+unifie([], _) :- !.
+unifie([]) :- !.
 
 % unification choix premier
 unifie(P, choix_premier) :- 
@@ -276,7 +276,8 @@ unifie(P, decompose):-
 	P = [E |_],
 	regle(E, decompose),
 	reduit(decompose, E, P, Q),
-	unifie(Q, regle),!.
+	unifie(Q, regle),
+	echo("decompose: "),echo(Q),nl,!.
 
 unifie(P, clash):-
 	P = [E |_],
