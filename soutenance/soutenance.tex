@@ -175,9 +175,80 @@ reduit(rename, E, P, Q):-
 
 
 \chapter*{Question 2}
-\paragraph{Dans le main} ~\\
+\paragraph{Stratégies} ~\\
+On s'intéresse désormais à la rapidité de l'exécution de l'algorithme d'unification.
+Pour cela, on vas mettre en place plusieurs strarégie.
+\newline
+La Première stratégie consiste à choisir la première équation de la liste d'équation et d'essayer de lui appliquer une régle. Cette Stratégie correspond à la méthode de résolution qui à etait mis en place dans la question1. Elle est définit par le prédicat suivant :
+\begin{lstlisting}[caption ={Stratégie choix premier dans $main.pl$}]
+% unification choix premier
+unifie(P, choix_premier) :- 
+	choix_premier(P, _, _, _),
+	!.
+	
+	choix_premier(P, _, _, _) :- 
+	unifie(P, regle),
+	!.
+\end{lstlisting} ~\\
 
+La Deuxième stratégie consiste à appliquer les régles de transformation dans un certaine ordre. On cherche à appliquer certaines régles en priorité par rapport à d'autres. On essaie ainsi d'appliquer des régles sur l'ensemble du système d'équations avant d'en essayer d'autres. En d'autres termes, on essaie de trouver dans le systèmes d'équations une équation ou l'on peut appliquer notre régle au lieu de chercher une régle à appliquer à une équation.
+\newline
+On définit la priorité dans laquelle appliquer les régles comme suit:
 
+\begin{enumerate}
+  \item Clash, Check
+  \item Rename, Simplify
+  \item Orient
+  \item Decompose
+  \item Expand
+\end{enumerate}
+Par exemple, appliqué les régles Clash et Check en priorité permet de stopper l'éxécution plus rapidement si le système d'équation n'est pas unifiable.
+\newline
+
+\paragraph{Implémentation:} ~\\
+
+\begin{lstlisting}[caption ={Stratégie choix pondere dans $main.pl$ avec les régles de poids 1}]
+% unification choix pondere
+unifie(P, choix_pondere) :-
+	choix_pondere(P, P, _, 1),
+	!.
+	
+%%%% clash, check
+
+%clash
+choix_pondere(_, [Head|_], _, 1):-
+	regle(Head , clash),
+	!,
+%	echo('\t fail clash'),
+	fail,
+	!.
+
+%check
+choix_pondere(_, [Head|_], _, 1):-
+	regle(Head, check),
+	!,
+%	echo('\t fail check'),
+	fail,
+	!.
+
+% regles non applicables dans le systeme d'equations
+choix_pondere(P, [Head|Tail], _, 1):-
+	\+regle(Head, clash),
+	\+regle(Head, check),
+	!,
+	choix_pondere(P, Tail, _, 1),
+	!.
+\end{lstlisting}
+
+\begin{lstlisting}[caption ={Stratégie choix pondere dans $main.pl$, passage aux régles de poids 1 }]
+choix_pondere(P, [], _, 2):-
+	choix_pondere(P, P, _, 2),
+	!.
+\end{lstlisting}
+
+\paragraph{Comparaison des Stratégies:} ~\\
+
+Grace à ces exemples, on peut constater que le choix pondere permet de remarquer rapidement si une unification est possible ou non.
 
 \mbox{}
 \newpage

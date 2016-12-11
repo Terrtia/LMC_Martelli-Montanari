@@ -58,7 +58,6 @@ unifie(P, regle):- unifie(P, clash).
 deleteEquation([], _, []):- !.                % si liste vide, on renvoie une liste vide
 deleteEquation([Element | Tail], E, [Element| Tail2]):-
 	not(Element == E),
-	%echo('\n'),echo('\t E= '),echo(E),
 	deleteEquation(Tail, E, Tail2),!.
 	
 deleteEquation([E | Tail], E, L):- 
@@ -75,41 +74,23 @@ choix_pondere([], _, _, _):-
 	true.
 
 choix_pondere(P, [], _, 1):-
-	%echo('\n'),
-	%echo('\t 1to2'),
-	%echo(P),
-	%echo('\n'),
 	choix_pondere(P, P, _, 2),
 	!.
 
 choix_pondere(P, [], _, 2):-
-	%echo('\n'),
-	%echo('\t 2to3'),
-	%echo(P),
-	%echo('\n'),
 	choix_pondere(P, P, _, 3),
 	!.
 
 choix_pondere(P, [], _, 3):-
-	%echo('\n'),
-	%echo('\t 3to4'),
-	%echo(P),
-	%echo('\n'),
 	choix_pondere(P, P, _, 4),
 	!.
 
 choix_pondere(P, [], _, 4):-
-	%echo('\n'),
-	%echo('\t 4to5'),
-	%echo(P),
-	%echo('\n'),
 	choix_pondere(P, P, _, 5),
 	!.
 
 % on a appliqué toutes les régles sans succés, échec de l'unification
 choix_pondere(_, [], _, 5):-
-%	echo('\n'),
-%	echo('\t fail'),
 	fail,
 	!.
 
@@ -118,19 +99,17 @@ choix_pondere(_, [], _, 5):-
 %%%% clash, check
 
 %clash
-choix_pondere(_, [Head|_], _, 1):-
+choix_pondere(P, [Head|_], _, 1):-
 	regle(Head , clash),
 	!,
-%	echo('\t fail clash'),
-	fail,
+ 	reduit(clash, Head, P, _),
 	!.
 
 %check
 choix_pondere(_, [Head|_], _, 1):-
 	regle(Head, check),
 	!,
-%	echo('\t fail check'),
-	fail,
+	reduit(check, Head, P, _),
 	!.
 
 % regles non applicables dans le système d'équations
@@ -147,16 +126,8 @@ choix_pondere(P, [Head|Tail], _, 1):-
 choix_pondere(P, [Head|_], _, 2):-
 	regle(Head, rename),
 	!,
-	%echo('\n'),
-	%echo('\t head= '),echo(Head),
 	deleteEquation(P, Head, ListTemp),
-	%echo('\n'),echo('\t ListTemp= '),echo(ListTemp),
-	%echo('\n'),echo('\t ListTemp++= '),echo([Head|ListTemp]),
-	%echo('\n'),echo('\t head= '),echo(Head),
 	reduit(rename, Head, [Head|ListTemp], Q),
-	%echo('\n'),
-	%echo('\t rename q='),
-	%echo(Q),
 	choix_pondere(Q, [], _, 1),
 	!.
 
@@ -164,13 +135,8 @@ choix_pondere(P, [Head|_], _, 2):-
 choix_pondere(P, [Head|_], _, 2):-
 	regle(Head, simplify),
 	!,
-	%echo('\n'),
-	%echo('\t head0 : '),echo(Head),
 	deleteEquation(P, Head, ListTemp),
 	reduit(simplify, Head, [Head|ListTemp], Q),
-	%echo('\t simplify q='),
-	%echo(Q),
-	%echo('\t head : '),echo(Head),echo('\t listTemp : '),echo(ListTemp),
 	choix_pondere(Q, [], _, 1),
 	!.
 
@@ -188,13 +154,8 @@ choix_pondere(P, [Head|Tail], _, 2):-
 choix_pondere(P, [Head|_], _, 3):-
 	regle(Head, orient),
 	!,
-	%echo('\n'),
-	%echo('\t head : '),echo(Head),
 	deleteEquation(P, Head, ListTemp),
 	reduit(orient, Head, [Head|ListTemp], Q),
-	%echo('\t orient : q='),
-	%echo(Q),
-	%echo('\t head : '),echo(Head),echo('\t listTemp : '),echo(ListTemp),
 	choix_pondere(Q, [], _, 1),
 	!.
 
@@ -209,16 +170,10 @@ choix_pondere(P, [Head|Tail], _, 3):-
 
 % decompose
 choix_pondere(P, [Head|_], _, 4):-
-	%echo('\t je verifie decompose'),
-	%echo('\t head= '), echo(Head),
 	regle(Head, decompose),
 	!,
-	%echo('\t je peux decompose'),
 	deleteEquation(P, Head, ListTemp),
 	reduit(decompose, Head, [Head|ListTemp], Q),
-	%echo('\n'),
-	%echo('\t decompose q='),
-	%echo(Q),
 	choix_pondere(Q, [], _, 1),
 	!.
 
@@ -237,9 +192,6 @@ choix_pondere(P, [Head|_], _, 5):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(expand, Head, [Head|ListTemp], Q),
-	%echo('\n'),
-	%echo('\t expand q='),
-	%echo(Q),
 	choix_pondere(Q, [], _, 1),
 	!.
 
