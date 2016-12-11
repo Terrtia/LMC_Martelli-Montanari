@@ -80,8 +80,7 @@ unifie(P, decompose):-
 	P = [E |_],
 	regle(E, decompose),
 	reduit(decompose, E, P, Q),
-	unifie(Q, regle),
-	echo("decompose: "),echo(Q),nl,!.
+	unifie(Q, regle),!.
 
 unifie(P, clash):-
 	P = [E |_],
