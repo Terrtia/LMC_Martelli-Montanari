@@ -41,5 +41,4 @@ regle(E, clash):- % revoir le double return
 	compound(T),
 	functor(S,NameS,ArityS),
 	functor(T,NameT,ArityT),
-	(NameS == NameT;
-	ArityS == ArityT).
+	\+(NameS == NameT; ArityS == ArityT).
