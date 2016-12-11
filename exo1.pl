@@ -80,7 +80,8 @@ unifie(P, decompose):-
 	P = [E |_],
 	regle(E, decompose),
 	reduit(decompose, E, P, Q),
-	unifie(Q, regle),!.
+	unifie(Q, regle),
+	echo("decompose: "),echo(Q),nl,!.
 
 unifie(P, clash):-
 	P = [E |_],
@@ -98,8 +99,7 @@ reduit(decompose, E, P, Q):-
 	functor(X,_,ArityX),
 	functor(T,_,_),
 	P = [_|Tail],
-	repet(X,T,ArityX,Tail,Q),
-	echo("decompose: "),echo(Q),nl.
+	repet(X,T,ArityX,Tail,Q).
 
 repet(_,_,0,T,Q):- Q = T, !.
 repet(X,T,N,Tail,Q) :-

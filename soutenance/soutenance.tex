@@ -1,24 +1,23 @@
 \documentclass[10pt,a4paper]{report}
 
+\usepackage[utf8]{inputenc}
 \usepackage[francais]{babel}
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-
-\usepackage{listings}
-\usepackage{geometry}
-\usepackage{fancyhdr}
-\usepackage{graphicx}
-\usepackage{hyperref}
 \usepackage{lipsum}
-\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
 \usepackage[dvipsnames]{xcolor}
+\usepackage{setspace}
 
 \hypersetup{
 	colorlinks,
-	citecolor=black,
+	urlcolor=black
 	filecolor=black,
 	linkcolor=black,
-	urlcolor=black
+	citecolor=black,
 }
 
 \definecolor{mygray}{RGB}{233,233,233}
@@ -27,10 +26,10 @@
 	language=Prolog,
 	basicstyle=\ttfamily\small,
 	identifierstyle=\color{Cerulean},
-	keywordstyle=\color{blue},
 	numberstyle=\color{green},
-	stringstyle=\color{black!60},
+	keywordstyle=\color{blue},
 	commentstyle=\it\color{green},
+	stringstyle=\color{black!60},
 	columns=flexible,
 	tabsize=4,
 	extendedchars=true,
@@ -49,7 +48,7 @@
 \newsavebox{\BBbox}
 \newenvironment{DDbox}[1]{
 	\begin{lrbox}{\BBbox}\begin{minipage}{\linewidth}}
-		{\end{minipage}\end{lrbox}\noindent\colorbox{Zgris}{\usebox{\BBbox}} \\
+		{\end{minipage}\end{lrbox}\noindent\colorbox{mygray}{\usebox{\BBbox}} \\
 	[.5cm]}
 
 \fancypagestyle{plain}{
@@ -123,25 +122,26 @@ Toutes les conditions nécessaire pour appliquer la réduction (prédicat reduit
 
 
 \chapter*{Question 1}
-\paragraph{Mise en place} ~\\
+\paragraph{Mise en place pour l'unification} ~\\
+On peut voir ici les instructions pour l'ouverture des différents fichiers.
 \begin{lstlisting}[caption ={Dans le fichier $main.pl$}]
 :-
 	[operateurs],
 	[predicatsRelais],
 	[reglesTest].
 \end{lstlisting} ~\\
-Un exemple du prédicat regle(E,R) dans le code :
+Un exemple du prédicat regle(E,R) dans le code.
 \begin{lstlisting}[caption ={Dans le fichier $main.pl$}]
 regle(E,rename)
-\end{lstlisting}~\\
-Qui va appeler le prédicat dans le fichier \textbf{reglesTest.pl} :
+\end{lstlisting} ~\\
+Qui va appeler le prédicat dans le fichier \textbf{reglesTest.pl}. Ici on va séparer l'équation E en les termes X et T. Il va ensuite vérifier l'applicabilité de la règle $rename$.
 \begin{lstlisting}[caption ={Dans le fichier $reglesTest.pl$}]
 regle(E, rename):-
 	splitEquation(E,X,T),
 	var(T),
 	var(X).
-\end{lstlisting}~\\
-Qui va appeler le prédicat dans le fichier \textbf{predicatsRelais.pl} :
+\end{lstlisting} ~\\
+Qui va appeler le prédicat dans le fichier \textbf{predicatsRelais.pl}. On récupère la partie gauche et droite de \textbf{?=} pour le mettre dans X et T respectivement.
 \begin{lstlisting}[caption ={Dans le fichier $predicatsRelais.pl$}]
 splitEquation(E,X,T):-
 	arg(1,E,L),
@@ -149,6 +149,33 @@ splitEquation(E,X,T):-
 	X = L,
 	T = R.
 \end{lstlisting}
+
+\paragraph{Occur check} ~\\
+Le prédicat $occur_check$ a été assez simple à mettre en oeuvre. Il sera chargé de vérifier si V apparaît dans le terme composé T.
+\begin{lstlisting}[caption ={Dans le fichier $main.pl$}]
+occur_check(V,T):-
+	compound(T),
+	var(V),
+	contains_var(V,T).
+\end{lstlisting}
+
+\paragraph{Reduit} ~\\
+Voici un exemple de $reduit$ qui se charge d'appliquer la règle rename.
+\begin{lstlisting}[caption ={reduit dans $main.pl$}]
+reduit(rename, E, P, Q):-
+	splitEquation(E,X,T),
+	X = T,
+	P = [_|Q].
+\end{lstlisting}
+
+
+
+
+
+\chapter*{Question 2}
+\paragraph{Dans le main} ~\\
+
+
 
 
 
