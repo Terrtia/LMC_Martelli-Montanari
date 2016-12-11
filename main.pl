@@ -301,6 +301,8 @@ unifie(P, clash):-
 
 % reduit sur regle decompose - en cours
 reduit(decompose, E, P, Q):-
+	echo("system: "),echo(P),nl,
+	echo("decompose: "),echo(E),nl,
 	splitEquation(E,X,T),
 	functor(X,_,ArityX),
 	functor(T,_,_),
@@ -317,31 +319,43 @@ repet(X,T,N,Tail,Q) :-
 	repet(X,T,N1,Var,Q).
 
 reduit(rename, E, P, Q):-
+	echo("system: "),echo(P),nl,
+	echo("rename: "),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
 reduit(simplify, E, P, Q):-
+	echo("system: "),echo(P),nl,
+	echo("simplify: "),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
 reduit(expand, E, P, Q):-
+	echo("system: "),echo(P),nl,
+	echo("expand: "),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
 reduit(check, _, _, _):-
+	echo("system: "),echo(P),nl,
+	echo("check: "),echo(E),nl,
 	fail,
 	!.
 
 reduit(orient, E, P, Q):-
+	echo("system: "),echo(P),nl,
+	echo("orient: "),echo(E),nl,
 	splitEquation(E,X,T),
 	P = [_|Tail],
 	Q = [T ?= X | Tail].
 
 
 reduit(clash, _, _, _):-
+	echo("system: "),echo(P),nl,
+	echo("clash: "),echo(E),nl,
 	fail,
 	!.
 
