@@ -24,6 +24,9 @@ trace_unif(P,S) :-
 	(unifie(P,S),
 	 echo('\tYes'),
 	 !;
+	 echo('\t'),
+	 echo(P),
+	 echo('\n'),
 	 echo('\tNo')).
 
 % unification
@@ -55,15 +58,15 @@ unifie(P, regle):- unifie(P, clash).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Fonction qui supprime l'equation du systeme d'equation
-deleteEquation([], _, []):- !.                % si liste vide, on renvoie une liste vide
+deleteEquation([], _, []):- !.              % si liste vide, on renvoie une liste vide
 deleteEquation([Element | Tail], E, [Element| Tail2]):-
-	not(Element == E),
+	not(Element == E),		    
 	deleteEquation(Tail, E, Tail2),!.
 	
 deleteEquation([E | Tail], E, L):- 
 	deleteEquation(Tail, E, L),!.       % on supprime l'element E de la liste
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 choix_premier(P, _, _, _):- 
 	unifie(P, regle),
@@ -73,19 +76,19 @@ choix_premier(P, _, _, _):-
 choix_pondere([], _, _, _):-
 	true.
 
-choix_pondere(P, [], _, 1):-
+choix_pondere(P, [], _, 1):-		% passage au transformations de niveau 2
 	choix_pondere(P, P, _, 2),
 	!.
 
-choix_pondere(P, [], _, 2):-
+choix_pondere(P, [], _, 2):-		% passage au transformations de niveau 3
 	choix_pondere(P, P, _, 3),
 	!.
 
-choix_pondere(P, [], _, 3):-
+choix_pondere(P, [], _, 3):-		% passage au transformations de niveau 4
 	choix_pondere(P, P, _, 4),
 	!.
 
-choix_pondere(P, [], _, 4):-
+choix_pondere(P, [], _, 4):-		% passage au transformations de niveau 5
 	choix_pondere(P, P, _, 5),
 	!.
 
