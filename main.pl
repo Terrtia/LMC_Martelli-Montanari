@@ -25,11 +25,12 @@ trace_unif(P,S) :-
 	S == choix_premier),
 	set_echo,
 	(unifie(P,S),
+	 echo('\n'),
 	 echo('\tYes'),
 	 !;
 	 echo('\t'),
 	 echo(P),
-	 echo('\n'),
+	 echo('\n\n'),
 	 echo('\tNo')).
 
 % unification
