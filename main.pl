@@ -14,15 +14,11 @@ occur_check(V,T):-
 
 % unif
 unif(P,S) :-
-	(S == choix_pondere;
-	S == choix_premier),
 	clr_echo,
 	unifie(P,S).
 
 % trace_unif
 trace_unif(P,S) :-
-	(S == choix_pondere;
-	S == choix_premier),
 	set_echo,
 	(unifie(P,S),
 	 echo('\tYes'),
@@ -46,9 +42,10 @@ unifie(P, choix_pondere) :-
 	choix_pondere(P, P, _, 1),
 	!.
 
-%unifie(P):-
-	%unifie(P, regle),
-	%!.
+%unification choix aleatoire
+unifie(P, choix_aleatoire) :-
+	choix_equation_aleatoire(P,_,_,_),
+	!.
 
 unifie(P, regle):- unifie(P, rename).
 unifie(P, regle):- unifie(P, simplify).
@@ -74,6 +71,25 @@ deleteEquation([E | Tail], E, L):-
 choix_premier(P, _, _, _):- 
 	unifie(P, regle),
 	!.
+
+%%%%%%%%
+
+choix_equation_aleatoire([],_,_,_):- !.
+
+choix_equation_aleatoire(P,_,_,_):-
+	random_member(E, P), 				% on choisit aleatoirement une equation
+	deleteEquation(P, E, ListTemp),			% on supprime cette equation de la liste
+	reduit_random([E|ListTemp], E, Q, regle),	% on essaie d'appliquer les transformations E, nouvelle liste = Q
+	choix_equation_aleatoire(Q,_,_,_).
+
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, rename), !, reduit(rename, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, simplify), !, reduit(simplify, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, expand), !, reduit(expand, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, check), !, reduit(check, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, orient), !, reduit(orient, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, decompose), !, reduit(decompose, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, clash), !, reduit(clash, E, ListTemp2, Q).
+
 %%%%%%%%
 
 	% niveau 1: clash, check

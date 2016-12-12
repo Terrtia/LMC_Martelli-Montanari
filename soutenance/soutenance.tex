@@ -114,7 +114,7 @@ Contient l'opérateur \textbf{?=} et le code pour le echo contenu dans le mail.\
 Fonction de décomposition d'une équation E pour obtenir la partie gauche de
 l'opérateur \textbf{?=} et la partie droite.\\[1cm]
 \textbf{reglesTest.pl}\\
-Toutes les conditions nécessaire pour appliquer la réduction (prédicat reduit(R,E,P,Q)).\\[1cm]
+Toutes les conditions nécessaire pour appliquer la réduction (prédicat regle(E, R)).\\[1cm]
 \end{center}
 
 
@@ -175,9 +175,9 @@ reduit(rename, E, P, Q):-
 \chapter*{Question 2}
 \paragraph{Stratégies} ~\\
 On s'intéresse désormais à la rapidité de l'exécution de l'algorithme d'unification.
-Pour cela, on vas mettre en place plusieurs strarégie.
+Pour cela, on vas mettre en place plusieurs strarégies.
 \newline
-La Première stratégie consiste à choisir la première équation de la liste d'équation et d'essayer de lui appliquer une régle. Cette Stratégie correspond à la méthode de résolution qui à etait mis en place dans la question1. Elle est définit par le prédicat suivant :
+La Première stratégie consiste à choisir la première équation de la liste d'équations et d'essayer de lui appliquer une régle. Cette Stratégie correspond à la méthode de résolution qui à etait mise en place dans la question 1. Elle est définit par le prédicat suivant :
 \begin{lstlisting}[caption ={Stratégie choix premier dans $main.pl$}]
 % unification choix premier
 unifie(P, choix_premier) :- 
@@ -200,10 +200,9 @@ On définit la priorité dans laquelle appliquer les régles comme suit:
   \item Decompose
   \item Expand
 \end{enumerate}
-Par exemple, appliqué les régles Clash et Check en priorité permet de stopper l'éxécution plus rapidement si le système d'équation n'est pas unifiable.
-\newline
+Par exemple, appliquer les régles Clash et Check en priorité permet de stopper l'éxécution plus rapidement si le système d'équation n'est pas unifiable.
 
-\paragraph{Implémentation:} ~\\
+
 
 \begin{lstlisting}[caption ={Stratégie choix pondere dans $main.pl$ avec les régles de poids 1}]
 % unification choix pondere
@@ -217,16 +216,14 @@ unifie(P, choix_pondere) :-
 choix_pondere(_, [Head|_], _, 1):-
 	regle(Head , clash),
 	!,
-%	echo('\t fail clash'),
-	fail,
+ 	reduit(clash, Head, P, _),
 	!.
 
 %check
 choix_pondere(_, [Head|_], _, 1):-
 	regle(Head, check),
 	!,
-%	echo('\t fail check'),
-	fail,
+	reduit(check, Head, P, _),
 	!.
 
 % regles non applicables dans le systeme d'equations
@@ -234,19 +231,101 @@ choix_pondere(P, [Head|Tail], _, 1):-
 	\+regle(Head, clash),
 	\+regle(Head, check),
 	!,
-	choix_pondere(P, Tail, _, 1),
-	!.
+	choix_pondere(P, Tail, _, 1),		% on essaye d'appliquer les transformations de niveau 1
+	!.									% sur l'equation suivante
+
 \end{lstlisting}
 
 \begin{lstlisting}[caption ={Stratégie choix pondere dans $main.pl$, passage aux régles de poids 1 }]
 choix_pondere(P, [], _, 2):-
 	choix_pondere(P, P, _, 2),
 	!.
-\end{lstlisting}
+\end{lstlisting}~\\
+
+
+
+La Troisième stratégie consiste à sélectionner une équation au hasard dans le système d'èquations. On tente ensuite d'appliquer toutes les transformations sur cette équation.
+
+\begin{lstlisting}[caption ={Stratégie choix aléatoire dans $main.pl$}]
+%unification choix aleatoire
+unifie(P, choix_aleatoire) :-
+	choix_equation_aleatoire(P,_,_,_),
+	!.
+	
+choix_equation_aleatoire([],_,_,_):- !.
+
+choix_equation_aleatoire(P,_,_,_):-
+	random_member(E, P), 						% on choisit aleatoirement une equation
+	deleteEquation(P, E, ListTemp),				 % on supprime cette equation de la liste
+	reduit_random([E|ListTemp], E, Q, regle),% on essaie d'appliquer les transformations E, nouvelle liste = Q
+	choix_equation_aleatoire(Q,_,_,_).
+
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, rename), !, reduit(rename, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, simplify), !, reduit(simplify, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, expand), !, reduit(expand, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, check), !, reduit(check, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, orient), !, reduit(orient, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, decompose), !, reduit(decompose, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, clash), !, reduit(clash, E, ListTemp2, Q).
+\end{lstlisting}~\\
 
 \paragraph{Comparaison des Stratégies:} ~\\
 
-Grace à ces exemples, on peut constater que le choix pondere permet de remarquer rapidement si une unification est possible ou non.
+Grace à ces exemples, on peut constater que le choix pondere permet de remarquer rapidement si une unification est possible ou non:
+
+\begin{lstlisting}[caption ={Stratégie choix premier dans $main.pl$}]
+?- trace_unif([c ?= Z, E?= Z, f(X,Y) ?= f(U,V,W)], choix_premier).
+	system: [c?=_G1732,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	orient: c?=_G1732
+	system: [_G1732?=c,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	simplify: _G1732?=c
+	system: [_G1737?=c,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	simplify: _G1737?=c
+	system: [f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	clash: f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)
+	[c?=_G1732,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	No
+
+\end{lstlisting}
+
+\begin{lstlisting}[caption ={Stratégie choix pondere dans $main.pl$}]
+?- trace_unif([c ?= Z, E?= Z, f(X,Y) ?= f(U,V,W)], choix_pondere).
+	system: [c?=_G1732,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	clash: f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)
+	[c?=_G1732,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	No
+\end{lstlisting}
+
+La Troisième stratégie permet en général de faire mieux que la stratégie choix premier:
+
+\begin{lstlisting}[caption ={Stratégie choix pondere dans $main.pl$}]
+?- trace_unif([c ?= Z, E?= Z, f(X,Y) ?= f(U,V,W)], choix_aleatoire).
+	system: [f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748),c?=_G1732,_G1737?=_G1732]
+	clash: f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)
+	[c?=_G1732,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	No
+
+?- trace_unif([c ?= Z, E?= Z, f(X,Y) ?= f(U,V,W)], choix_aleatoire).
+	system: [c?=_G1732,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	orient: c?=_G1732
+	system: [_G1737?=_G1732,_G1732?=c,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	rename: _G1737?=_G1732
+	system: [_G1732?=c,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	simplify: _G1732?=c
+	system: [f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	clash: f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)
+	[c?=_G1732,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	No
+
+?- trace_unif([c ?= Z, E?= Z, f(X,Y) ?= f(U,V,W)], choix_aleatoire).
+	system: [_G1737?=_G1732,c?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	rename: _G1737?=_G1732
+	system: [f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748),c?=_G1732]
+	clash: f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)
+	[c?=_G1732,_G1737?=_G1732,f(_G1743,_G1744)?=f(_G1746,_G1747,_G1748)]
+	No
+
+\end{lstlisting}
 
 \mbox{}
 \newpage
@@ -357,30 +436,137 @@ X = Y.
 \mbox{}
 \newpage
 \chapter*{Code source}
+\paragraph{Dans operateurs} ~\\
+\begin{lstlisting}[caption ={$operateurs.pl$}]
+:-
+	op(20,xfy,?=).
+
+% Predicats d'affichage fournis
+
+% set_echo: ce predicat active l'affichage par le predicat echo
+set_echo :-
+	assert(echo_on).
+
+% clr_echo: ce predicat inhibe l'affichage par le predicat echo
+clr_echo :-
+	retractall(echo_on).
+
+% echo(T): si le flag echo_on est positionne, echo(T) affiche le terme T
+%          sinon, echo(T) reussit simplement en ne faisant rien.
+
+echo(T) :-
+	echo_on,
+	!,
+	write(T).
+
+echo(_).
+\end{lstlisting}
+
+\paragraph{Dans predicatsRelais} ~\\
+\begin{lstlisting}[caption ={$predicatsRelais.pl$}]
+splitEquation(E,X,T):-
+	arg(1,E,L),
+	arg(2,E,R),
+	X = L,
+	T = R.
+\end{lstlisting}
+
+\paragraph{Dans reglesTest} ~\\
+\begin{lstlisting}[caption ={$reglesTest.pl$}]
+regle(E, rename):-
+	splitEquation(E,X,T),
+	var(T),
+	var(X).
+
+regle(E, simplify):-
+	splitEquation(E,X,T),
+	atomic(T),
+	var(X).
+
+regle(E, orient):-
+	splitEquation(E,T,X),
+	var(X),
+	nonvar(T).
+
+regle(E, check):-
+	splitEquation(E,X,T),
+	var(X),
+	not(X==T),
+	occur_check(X,T).
+
+regle(E, expand):-
+	splitEquation(E,X,T),
+	var(X),
+	not(atomic(T)),
+	nonvar(T),
+	not(occur_check(X,T)).
+
+regle(E, decompose):-
+	splitEquation(E,S,T),
+	compound(S),
+	compound(T),
+	functor(S,NameS,ArityS),
+	functor(T,NameT,ArityT),
+	NameS == NameT,
+	ArityS == ArityT.
+
+regle(S ?= T, clash):-
+	compound(S),
+	compound(T),
+	functor(S,NameS,ArityS),
+	functor(T,NameT,ArityT),
+	\+((NameS == NameT, ArityS == ArityT)).
+\end{lstlisting}
+
 \paragraph{Dans le main} ~\\
 \begin{lstlisting}[caption ={$main.pl$}]
+% Ajout d'autres fichiers pour simplier le code principal
+:-
+	[operateurs], % ?= , echo
+	[predicatsRelais], % splitEquation
+	[reglesTest]. % test de validite sur chaque regle
+
+% Predicats
+
+% Occur_check
 occur_check(V,T):-
 	compound(T),
 	var(V),
 	contains_var(V,T).
 
+% unif
 unif(P,S) :-
 	clr_echo,
 	unifie(P,S).
 
+% trace_unif
 trace_unif(P,S) :-
 	set_echo,
 	(unifie(P,S),
-	 echo("Yes"),
+	 echo('\tYes'),
 	 !;
-	 echo("No")).
+	 echo('\t'),
+	 echo(P),
+	 echo('\n'),
+	 echo('\tNo')).
 
+% unification
 unifie([], _) :- !.
 unifie([]) :- !.
 
+% unification choix premier
+unifie(P, choix_premier) :- 
+	choix_premier(P, _, _, _),
+	!.
 
-unifie(P):-
-	unifie(P, regle),
+%unification choix pondere
+unifie(P, choix_pondere) :-
+	choix_pondere(P, P, _, 1),
+	!.
+
+%unification choix aleatoire
+unifie(P, choix_aleatoire) :-
+	choix_equation_aleatoire(P,_,_,_),
 	!.
 
 unifie(P, regle):- unifie(P, rename).
@@ -391,15 +577,191 @@ unifie(P, regle):- unifie(P, orient).
 unifie(P, regle):- unifie(P, decompose).
 unifie(P, regle):- unifie(P, clash).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-unifie(P, rename) :- 
-	P = [E |_],
-	regle(E, rename),
-	reduit(rename, E, P, Q),
-	unifie(Q, regle),!.
+% Fonction qui supprime l'equation du systeme d'equation
+deleteEquation([], _, []):- !.              % si liste vide, on renvoie une liste vide
+deleteEquation([Element | Tail], E, [Element| Tail2]):-
+	not(Element == E),		    
+	deleteEquation(Tail, E, Tail2),!.
+	
+deleteEquation([E | Tail], E, L):- 
+	deleteEquation(Tail, E, L),!.       % on supprime l'element E de la liste
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+choix_premier(P, _, _, _):- 
+	unifie(P, regle),
+	!.
+
+%%%%%%%%
+
+choix_equation_aleatoire([],_,_,_):- !.
+
+choix_equation_aleatoire(P,_,_,_):-
+	random_member(E, P), 				% on choisit aleatoirement une equation
+	deleteEquation(P, E, ListTemp),			% on supprime cette equation de la liste
+	reduit_random([E|ListTemp], E, Q, regle),	% on essaie d'appliquer les transformations E, nouvelle liste = Q
+	choix_equation_aleatoire(Q,_,_,_).
+
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, rename), !, reduit(rename, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, simplify), !, reduit(simplify, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, expand), !, reduit(expand, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, check), !, reduit(check, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, orient), !, reduit(orient, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, decompose), !, reduit(decompose, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, clash), !, reduit(clash, E, ListTemp2, Q).
+
+%%%%%%%%
+
+	% niveau 1: clash, check
+	% niveau 2: rename, simplify
+	% niveau 3: orient
+	% niveau 4: decompose
+	% niveau 5: expand
+
+choix_pondere([], _, _, _):-
+	true.
+
+choix_pondere(P, [], _, 1):-		% passage au niveau 2
+	choix_pondere(P, P, _, 2),
+	!.
+
+choix_pondere(P, [], _, 2):-		% passage au niveau 3
+	choix_pondere(P, P, _, 3),
+	!.
+
+choix_pondere(P, [], _, 3):-		% passage au niveau 4
+	choix_pondere(P, P, _, 4),
+	!.
+
+choix_pondere(P, [], _, 4):-		% passage au niveau 5
+	choix_pondere(P, P, _, 5),
+	!.
+
+% on a applique toutes les regles sans succes, echec de l'unification
+choix_pondere(_, [], _, 5):-
+	fail,
+	!.
+
+%%%%%%%%
+
+%%%% clash, check (niveau 1)
+
+%clash
+choix_pondere(P, [Head|_], _, 1):-
+	regle(Head , clash),
+	!,
+ 	reduit(clash, Head, P, _),
+	!.
+
+%check
+choix_pondere(P, [Head|_], _, 1):-
+	regle(Head, check),
+	!,
+	reduit(check, Head, P, _),
+	!.
+
+% regles non applicables dans le systeme d'equations
+choix_pondere(P, [Head|Tail], _, 1):-
+	\+regle(Head, clash),
+	\+regle(Head, check),
+	!,
+	choix_pondere(P, Tail, _, 1),		% on essaye d'appliquer les transformations de niveau 1
+	!.					% sur l'equation suivante
+
+%%%% rename, simplify (niveau 2)
+
+% rename
+choix_pondere(P, [Head|_], _, 2):-
+	regle(Head, rename),
+	!,
+	deleteEquation(P, Head, ListTemp),	% on supprime l'equation E du systeme d'equation
+	reduit(rename, Head, [Head|ListTemp], Q),
+	choix_pondere(Q, Q, _, 1),		% on applique la strategie choix_pondere sur le nouveau
+	!.					% systeme d'equation
+
+% simplify
+choix_pondere(P, [Head|_], _, 2):-
+	regle(Head, simplify),
+	!,
+	deleteEquation(P, Head, ListTemp),
+	reduit(simplify, Head, [Head|ListTemp], Q),
+	choix_pondere(Q, Q, _, 1),
+	!.
+
+% regles non applicables dans le systeme d'equations
+choix_pondere(P, [Head|Tail], _, 2):-
+	\+regle(Head, rename),
+	\+regle(Head, simplify),
+	!,
+	choix_pondere(P, Tail, _, 2),
+	!.
+
+%%%% orient (niveau 3)
+
+% orient
+choix_pondere(P, [Head|_], _, 3):-
+	regle(Head, orient),
+	!,
+	deleteEquation(P, Head, ListTemp),
+	reduit(orient, Head, [Head|ListTemp], Q),
+	choix_pondere(Q, Q, _, 1),
+	!.
+
+% regles non applicables dans le systeme d'equations
+choix_pondere(P, [Head|Tail], _, 3):-
+	\+regle(Head, orient),
+	!,
+	choix_pondere(P, Tail, _, 3),
+	!.
+
+%%%% decompose (niveau 4)
+
+% decompose
+choix_pondere(P, [Head|_], _, 4):-
+	regle(Head, decompose),
+	!,
+	deleteEquation(P, Head, ListTemp),
+	reduit(decompose, Head, [Head|ListTemp], Q),
+	choix_pondere(Q, Q, _, 1),
+	!.
+
+% regles non applicables dans le systeme d'equations
+choix_pondere(P, [Head|Tail], _, 4):-
+	\+regle(Head, decompose),
+	!,
+	choix_pondere(P, Tail, _, 4),
+	!.
+
+%%%% expand (niveau 5)
+
+% expand
+choix_pondere(P, [Head|_], _, 5):-
+	regle(Head, expand),
+	!,
+	deleteEquation(P, Head, ListTemp),
+	reduit(expand, Head, [Head|ListTemp], Q),
+	choix_pondere(Q, Q, _, 1),
+	!.
+
+% regles non applicables dans le systeme d'equations
+choix_pondere(P, [Head|Tail], _, 5):-
+	\+regle(Head, expand),
+	!,
+	choix_pondere(P, Tail, _, 5),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+unifie(P, rename) :- % Placer dans Q le resultat de l'unification avec la transformation rename
+	P = [E |_], % Placer dans E la tete du systeme d'equation P
+	regle(E, rename), % Test de l'applicabilite de la regle rename sur l'equation E
+	reduit(rename, E, P, Q), % Application de la regle
+	unifie(Q, regle),!. % Appel recursif sur l'unification de Q avec une nouvelle regle
 
 
-unifie(P, simplify):-
+unifie(P, simplify):- % Meme raisonnement que precedemment
 	P = [E |_],
 	regle(E, simplify),
 	reduit(simplify, E, P, Q),
@@ -436,53 +798,68 @@ unifie(P, clash):-
 	unifie(Q, regle),!.
 
 
-reduit(decompose, E, P, Q):-
-	splitEquation(E,X,T),
-	functor(X,_,ArityX),
-	functor(T,_,_),
-	P = [_|Tail],
-	repet(X,T,ArityX,Tail,Q),
-	echo("decompose: "),echo(Q),nl.
+% Transformation du systeme d'equations P en un systeme d'equations Q par application de la regle de transformation a l'equation E
 
-repet(_,_,0,T,Q):- Q = T, !.
+
+% reduit sur regle decompose
+reduit(decompose, E, P, Q):-
+	echo('\tsystem: '),echo(P),nl, % Affichage des etapes pour le trace_unif
+	echo('\tdecompose: '),echo(E),nl,
+	splitEquation(E,X,T), % Separe E en X et T avec comme separateur ?=
+	functor(X,_,ArityX), % Recuperation de l'arite de X
+	functor(T,_,_),
+	P = [_|Tail], % Recup de la queue de la liste P dans Tail
+	repet(X,T,ArityX,Tail,Q). % Boucle iterative pour verifier l'unification sur tous les arguments des fonctions
+
+repet(_,_,0,T,Q):- Q = T, !. % Arret du predicat repet et affectation du resultat dans Q
 repet(X,T,N,Tail,Q) :-
-	N > 0,
-	arg(N,X,ValX),
+	N > 0, % Condition d'arret
+	arg(N,X,ValX), % Recuperer l'argument a l'indice N dans X et le mettre dans ValX
 	arg(N,T,ValT),
-	Var = [ValX?=ValT|Tail],
-	N1 is N - 1,
+	Var = [ValX?=ValT|Tail], % Var va desormais contenir ValX ?= ValT en plus dans la liste Tail
+	N1 is N - 1, % Decrementation de la boucle
 	repet(X,T,N1,Var,Q).
 
 reduit(rename, E, P, Q):-
+	echo('\tsystem: '),echo(P),nl,
+	echo('\trename: '),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
 reduit(simplify, E, P, Q):-
+	echo('\tsystem: '),echo(P),nl,
+	echo('\tsimplify: '),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
 reduit(expand, E, P, Q):-
+	echo('\tsystem: '),echo(P),nl,
+	echo('\texpand: '),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
-reduit(check, _, _, _):-
+reduit(check, E, P, _):-
+	echo('\tsystem: '),echo(P),nl,
+	echo('\tcheck: '),echo(E),nl,
 	fail,
 	!.
 
 reduit(orient, E, P, Q):-
+	echo('\tsystem: '),echo(P),nl,
+	echo('\torient: '),echo(E),nl,
 	splitEquation(E,X,T),
 	P = [_|Tail],
 	Q = [T ?= X | Tail].
 
 
-reduit(clash, _, _, _):-
+reduit(clash, E, P, _):-
+	echo('\tsystem: '),echo(P),nl,
+	echo('\tclash: '),echo(E),nl,
 	fail,
 	!.
 \end{lstlisting}
-
-
 
 \end{document}
