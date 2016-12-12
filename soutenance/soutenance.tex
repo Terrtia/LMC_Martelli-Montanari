@@ -163,8 +163,6 @@ occur_check(V,T):-
 Voici un exemple de $reduit$ qui se charge d'appliquer la règle rename.
 \begin{lstlisting}[caption ={reduit dans $main.pl$}]
 reduit(rename, E, P, Q):-
-	echo("system: "),echo(P),nl,
-	echo("rename: "),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
@@ -265,15 +263,18 @@ Pour le prédicat $trace_unif$, il faut activer le echo en précisant que si l'u
 trace_unif(P,S) :-
 	set_echo,
 	(unifie(P,S),
-	 echo("Yes"),
+	 echo('\tYes'),
 	 !;
-	 echo("No")).
+	 echo('\t'),
+	 echo(P),
+	 echo('\n'),
+	 echo('\tNo')).
 \end{lstlisting} ~\\
 Une fois que ces prédcats sont fait, il suffit de mettre les echo dans le code qui sera commun aux différentes stratégies. Ainsi nous aurons par exemple dans le prédicat $reduit$ :
 \begin{lstlisting}[caption ={Les echos dans $main.pl$}]
 reduit(rename, E, P, Q):-
-	echo("system: "),echo(P),nl,
-	echo("rename: "),echo(E),nl,
+	echo('\tsystem: '),echo(P),nl,
+	echo('\trename: '),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
