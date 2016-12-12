@@ -40,4 +40,4 @@ regle(S ?= T, clash):-
 	compound(T),
 	functor(S,NameS,ArityS),
 	functor(T,NameT,ArityT),
-	(\+(NameS == NameT); \+(ArityS == ArityT)).
+	\+((NameS == NameT, ArityS == ArityT)).
