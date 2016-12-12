@@ -310,4 +310,3 @@ reduit(clash, E, P, _):-
 	echo("clash: "),echo(E),nl,
 	fail,
 	!.
-
