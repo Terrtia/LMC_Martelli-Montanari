@@ -207,14 +207,14 @@ choix_pondere(P, [Head|Tail], _, 5):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-unifie(P, rename) :- 
-	P = [E |_],
-	regle(E, rename),
-	reduit(rename, E, P, Q),
-	unifie(Q, regle),!.
+unifie(P, rename) :- % Placer dans Q le resultat de l'unification avec la transformation rename
+	P = [E |_], % Placer dans E la tete du systeme d'equation P
+	regle(E, rename), % Test de l'applicabilite de la regle rename sur l'equation E
+	reduit(rename, E, P, Q), % Application de la regle
+	unifie(Q, regle),!. % Appel recursif sur l'unification de Q avec une nouvelle regle
 
 
-unifie(P, simplify):-
+unifie(P, simplify):- % Meme raisonnement que precedemment
 	P = [E |_],
 	regle(E, simplify),
 	reduit(simplify, E, P, Q),
@@ -256,21 +256,21 @@ unifie(P, clash):-
 
 % reduit sur regle decompose - en cours
 reduit(decompose, E, P, Q):-
-	echo('\tsystem: '),echo(P),nl,
+	echo('\tsystem: '),echo(P),nl, % Affichage des etapes pour le trace_unif
 	echo('\tdecompose: '),echo(E),nl,
-	splitEquation(E,X,T),
-	functor(X,_,ArityX),
+	splitEquation(E,X,T), % Separe E en X et T avec comme separateur ?=
+	functor(X,_,ArityX), % Recuperation de l'arite de X
 	functor(T,_,_),
-	P = [_|Tail],
-	repet(X,T,ArityX,Tail,Q).
+	P = [_|Tail], % Recup de la queue de la liste P dans Tail
+	repet(X,T,ArityX,Tail,Q). % Boucle iterative pour verifier l'unification sur tous les arguments des fonctions
 
-repet(_,_,0,T,Q):- Q = T, !.
+repet(_,_,0,T,Q):- Q = T, !. % Arret du predicat repet et affectation du resultat dans Q
 repet(X,T,N,Tail,Q) :-
-	N > 0,
-	arg(N,X,ValX),
+	N > 0, % Condition d'arret
+	arg(N,X,ValX), % Recuperer l'argument a l'indice N dans X et le mettre dans ValX
 	arg(N,T,ValT),
-	Var = [ValX?=ValT|Tail],
-	N1 is N - 1,
+	Var = [ValX?=ValT|Tail], % Var va desormais contenir ValX ?= ValT en plus dans la liste Tail
+	N1 is N - 1, % Decrementation de la boucle
 	repet(X,T,N1,Var,Q).
 
 reduit(rename, E, P, Q):-
