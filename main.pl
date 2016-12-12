@@ -22,9 +22,12 @@ unif(P,S) :-
 trace_unif(P,S) :-
 	set_echo,
 	(unifie(P,S),
-	 echo("Yes"),
+	 echo('\tYes'),
 	 !;
-	 echo("No")).
+	 echo('\t'),
+	 echo(P),
+	 echo('\n'),
+	 echo('\tNo')).
 
 % unification
 unifie([], _) :- !.
@@ -55,37 +58,43 @@ unifie(P, regle):- unifie(P, clash).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Fonction qui supprime l'equation du systeme d'equation
-deleteEquation([], _, []):- !.                % si liste vide, on renvoie une liste vide
+deleteEquation([], _, []):- !.              % si liste vide, on renvoie une liste vide
 deleteEquation([Element | Tail], E, [Element| Tail2]):-
-	not(Element == E),
+	not(Element == E),		    
 	deleteEquation(Tail, E, Tail2),!.
 	
 deleteEquation([E | Tail], E, L):- 
 	deleteEquation(Tail, E, L),!.       % on supprime l'element E de la liste
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 choix_premier(P, _, _, _):- 
 	unifie(P, regle),
 	!.
 %%%%%%%%
 
+	% niveau 1: clash, check
+	% niveau 2: rename, simplify
+	% niveau 3: orient
+	% niveau 4: decompose
+	% niveau 5: expand
+
 choix_pondere([], _, _, _):-
 	true.
 
-choix_pondere(P, [], _, 1):-
+choix_pondere(P, [], _, 1):-		% passage au niveau 2
 	choix_pondere(P, P, _, 2),
 	!.
 
-choix_pondere(P, [], _, 2):-
+choix_pondere(P, [], _, 2):-		% passage au niveau 3
 	choix_pondere(P, P, _, 3),
 	!.
 
-choix_pondere(P, [], _, 3):-
+choix_pondere(P, [], _, 3):-		% passage au niveau 4
 	choix_pondere(P, P, _, 4),
 	!.
 
-choix_pondere(P, [], _, 4):-
+choix_pondere(P, [], _, 4):-		% passage au niveau 5
 	choix_pondere(P, P, _, 5),
 	!.
 
@@ -96,7 +105,7 @@ choix_pondere(_, [], _, 5):-
 
 %%%%%%%%
 
-%%%% clash, check
+%%%% clash, check (niveau 1)
 
 %clash
 choix_pondere(P, [Head|_], _, 1):-
@@ -117,19 +126,19 @@ choix_pondere(P, [Head|Tail], _, 1):-
 	\+regle(Head, clash),
 	\+regle(Head, check),
 	!,
-	choix_pondere(P, Tail, _, 1),
-	!.
+	choix_pondere(P, Tail, _, 1),		% on essaye d'appliquer les transformations de niveau 1
+	!.					% sur l'equation suivante
 
-%%%% rename, simplify
+%%%% rename, simplify (niveau 2)
 
 % rename
 choix_pondere(P, [Head|_], _, 2):-
 	regle(Head, rename),
 	!,
-	deleteEquation(P, Head, ListTemp),
+	deleteEquation(P, Head, ListTemp),	% on supprime l'equation E du systeme d'equation
 	reduit(rename, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, [], _, 1),
-	!.
+	choix_pondere(Q, [], _, 1),		% on applique la strategie choix_pondere sur le nouveau
+	!.					% systeme d'equation
 
 % simplify
 choix_pondere(P, [Head|_], _, 2):-
@@ -148,7 +157,7 @@ choix_pondere(P, [Head|Tail], _, 2):-
 	choix_pondere(P, Tail, _, 2),
 	!.
 
-%%%% orient
+%%%% orient (niveau 3)
 
 % orient
 choix_pondere(P, [Head|_], _, 3):-
@@ -166,7 +175,7 @@ choix_pondere(P, [Head|Tail], _, 3):-
 	choix_pondere(P, Tail, _, 3),
 	!.
 
-%%%% decompose
+%%%% decompose (niveau 4)
 
 % decompose
 choix_pondere(P, [Head|_], _, 4):-
@@ -184,7 +193,7 @@ choix_pondere(P, [Head|Tail], _, 4):-
 	choix_pondere(P, Tail, _, 4),
 	!.
 
-%%%% expand
+%%%% expand (niveau 5)
 
 % expand
 choix_pondere(P, [Head|_], _, 5):-
@@ -204,14 +213,14 @@ choix_pondere(P, [Head|Tail], _, 5):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-unifie(P, rename) :- 
-	P = [E |_],
-	regle(E, rename),
-	reduit(rename, E, P, Q),
-	unifie(Q, regle),!.
+unifie(P, rename) :- % Placer dans Q le resultat de l'unification avec la transformation rename
+	P = [E |_], % Placer dans E la tete du systeme d'equation P
+	regle(E, rename), % Test de l'applicabilite de la regle rename sur l'equation E
+	reduit(rename, E, P, Q), % Application de la regle
+	unifie(Q, regle),!. % Appel recursif sur l'unification de Q avec une nouvelle regle
 
 
-unifie(P, simplify):-
+unifie(P, simplify):- % Meme raisonnement que precedemment
 	P = [E |_],
 	regle(E, simplify),
 	reduit(simplify, E, P, Q),
@@ -253,60 +262,60 @@ unifie(P, clash):-
 
 % reduit sur regle decompose - en cours
 reduit(decompose, E, P, Q):-
-	echo("system: "),echo(P),nl,
-	echo("decompose: "),echo(E),nl,
-	splitEquation(E,X,T),
-	functor(X,_,ArityX),
+	echo('\tsystem: '),echo(P),nl, % Affichage des etapes pour le trace_unif
+	echo('\tdecompose: '),echo(E),nl,
+	splitEquation(E,X,T), % Separe E en X et T avec comme separateur ?=
+	functor(X,_,ArityX), % Recuperation de l'arite de X
 	functor(T,_,_),
-	P = [_|Tail],
-	repet(X,T,ArityX,Tail,Q).
+	P = [_|Tail], % Recup de la queue de la liste P dans Tail
+	repet(X,T,ArityX,Tail,Q). % Boucle iterative pour verifier l'unification sur tous les arguments des fonctions
 
-repet(_,_,0,T,Q):- Q = T, !.
+repet(_,_,0,T,Q):- Q = T, !. % Arret du predicat repet et affectation du resultat dans Q
 repet(X,T,N,Tail,Q) :-
-	N > 0,
-	arg(N,X,ValX),
+	N > 0, % Condition d'arret
+	arg(N,X,ValX), % Recuperer l'argument a l'indice N dans X et le mettre dans ValX
 	arg(N,T,ValT),
-	Var = [ValX?=ValT|Tail],
-	N1 is N - 1,
+	Var = [ValX?=ValT|Tail], % Var va desormais contenir ValX ?= ValT en plus dans la liste Tail
+	N1 is N - 1, % Decrementation de la boucle
 	repet(X,T,N1,Var,Q).
 
 reduit(rename, E, P, Q):-
-	echo("system: "),echo(P),nl,
-	echo("rename: "),echo(E),nl,
+	echo('\tsystem: '),echo(P),nl,
+	echo('\trename: '),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
 reduit(simplify, E, P, Q):-
-	echo("system: "),echo(P),nl,
-	echo("simplify: "),echo(E),nl,
+	echo('\tsystem: '),echo(P),nl,
+	echo('\tsimplify: '),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
 reduit(expand, E, P, Q):-
-	echo("system: "),echo(P),nl,
-	echo("expand: "),echo(E),nl,
+	echo('\tsystem: '),echo(P),nl,
+	echo('\texpand: '),echo(E),nl,
 	splitEquation(E,X,T),
 	X = T,
 	P = [_|Q].
 
 reduit(check, E, P, _):-
-	echo("system: "),echo(P),nl,
-	echo("check: "),echo(E),nl,
+	echo('\tsystem: '),echo(P),nl,
+	echo('\tcheck: '),echo(E),nl,
 	fail,
 	!.
 
 reduit(orient, E, P, Q):-
-	echo("system: "),echo(P),nl,
-	echo("orient: "),echo(E),nl,
+	echo('\tsystem: '),echo(P),nl,
+	echo('\torient: '),echo(E),nl,
 	splitEquation(E,X,T),
 	P = [_|Tail],
 	Q = [T ?= X | Tail].
 
 
 reduit(clash, E, P, _):-
-	echo("system: "),echo(P),nl,
-	echo("clash: "),echo(E),nl,
+	echo('\tsystem: '),echo(P),nl,
+	echo('\tclash: '),echo(E),nl,
 	fail,
 	!.
