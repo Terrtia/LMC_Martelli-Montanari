@@ -20,7 +20,7 @@
 	citecolor=black,
 }
 
-\definecolor{mygray}{RGB}{233,233,233}
+\definecolor{mygray}{RGB}{240,240,240}
 
 \lstset{
 	language=Prolog,
@@ -124,25 +124,25 @@ Toutes les conditions nécessaire pour appliquer la réduction (prédicat reduit
 \chapter*{Question 1}
 \paragraph{Mise en place pour l'unification} ~\\
 On peut voir ici les instructions pour l'ouverture des différents fichiers.
-\begin{lstlisting}[caption ={Dans le fichier $main.pl$}]
+\begin{lstlisting}[caption ={Ouverture des fichiers dans $main.pl$}]
 :-
 	[operateurs],
 	[predicatsRelais],
 	[reglesTest].
 \end{lstlisting} ~\\
 Un exemple du prédicat regle(E,R) dans le code.
-\begin{lstlisting}[caption ={Dans le fichier $main.pl$}]
+\begin{lstlisting}[caption ={regle dans le fichier $main.pl$}]
 regle(E,rename)
 \end{lstlisting} ~\\
 Qui va appeler le prédicat dans le fichier \textbf{reglesTest.pl}. Ici on va séparer l'équation E en les termes X et T. Il va ensuite vérifier l'applicabilité de la règle $rename$.
-\begin{lstlisting}[caption ={Dans le fichier $reglesTest.pl$}]
+\begin{lstlisting}[caption ={regle dans le fichier $reglesTest.pl$}]
 regle(E, rename):-
 	splitEquation(E,X,T),
 	var(T),
 	var(X).
 \end{lstlisting} ~\\
 Qui va appeler le prédicat dans le fichier \textbf{predicatsRelais.pl}. On récupère la partie gauche et droite de \textbf{?=} pour le mettre dans X et T respectivement.
-\begin{lstlisting}[caption ={Dans le fichier $predicatsRelais.pl$}]
+\begin{lstlisting}[caption ={splitEquation dans le fichier $predicatsRelais.pl$}]
 splitEquation(E,X,T):-
 	arg(1,E,L),
 	arg(2,E,R),
@@ -152,7 +152,7 @@ splitEquation(E,X,T):-
 
 \paragraph{Occur check} ~\\
 Le prédicat $occur_check$ a été assez simple à mettre en oeuvre. Il sera chargé de vérifier si V apparaît dans le terme composé T.
-\begin{lstlisting}[caption ={Dans le fichier $main.pl$}]
+\begin{lstlisting}[caption ={occur\_check dans $main.pl$}]
 occur_check(V,T):-
 	compound(T),
 	var(V),
@@ -258,8 +258,8 @@ unif(P,S) :-
 	clr_echo,
 	unifie(P,S).
 \end{lstlisting} ~\\
-Pour le prédicat $trace_unif$, il faut activer le echo en précisant que si l'unification marche il y aura affiché un "Yes" ou un "No" dans le cas contraire.
-\begin{lstlisting}[caption ={trace unif dans $main.pl$}]
+Pour le prédicat $trace\_unif$, il faut activer le echo en précisant que si l'unification marche il y aura affiché un "Yes" ou un "No" dans le cas contraire.
+\begin{lstlisting}[caption ={trace\_unif dans $main.pl$}]
 trace_unif(P,S) :-
 	set_echo,
 	(unifie(P,S),

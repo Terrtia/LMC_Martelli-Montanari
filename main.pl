@@ -1,5 +1,4 @@
 % Ajout d'autres fichiers pour simplier le code principal
-
 :-
 	[operateurs], % ?= , echo
 	[predicatsRelais], % splitEquation
@@ -15,11 +14,15 @@ occur_check(V,T):-
 
 % unif
 unif(P,S) :-
+	(S == choix_pondere;
+	S == choix_premier),
 	clr_echo,
 	unifie(P,S).
 
 % trace_unif
 trace_unif(P,S) :-
+	(S == choix_pondere;
+	S == choix_premier),
 	set_echo,
 	(unifie(P,S),
 	 echo('\tYes'),
