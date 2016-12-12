@@ -35,10 +35,9 @@ regle(E, decompose):-
 	NameS == NameT,
 	ArityS == ArityT.
 
-regle(E, clash):- % revoir le double return
-	splitEquation(E,S,T),
+regle(S ?= T, clash):-
 	compound(S),
 	compound(T),
 	functor(S,NameS,ArityS),
 	functor(T,NameT,ArityT),
-	\+(NameS == NameT; ArityS == ArityT).
+	(\+(NameS == NameT); \+(ArityS == ArityT)).

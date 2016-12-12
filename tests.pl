@@ -48,8 +48,21 @@ X = Y.
         [f(_G201,_G202)?=f(_G204,_G205,_G206)]
 	No
 
+?- trace_unif([f(g(A), A) ?= f(B, xyz)], choix_pondere).
+	system: [f(g(_G201),_G201)?=f(_G206,xyz)]
+	decompose: f(g(_G201),_G201)?=f(_G206,xyz)
+	system: [_G201?=xyz,g(_G201)?=_G206]
+	simplify: _G201?=xyz
+	system: [g(xyz)?=_G206]
+	orient: g(xyz)?=_G206
+	system: [_G2?=g(xyz)]
+	expand: _G2?=g(xyz)
+	Yes
+A = xyz,
+B = g(xyz).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+[c ?= Z, f(b,a) ?= f(g(Y),Y), f(X,Y) ?= f(U,V,W)]
 

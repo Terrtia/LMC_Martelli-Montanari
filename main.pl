@@ -322,3 +322,4 @@ reduit(clash, E, P, _):-
 	echo('\tclash: '),echo(E),nl,
 	fail,
 	!.
+
