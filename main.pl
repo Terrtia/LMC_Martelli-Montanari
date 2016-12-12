@@ -118,7 +118,7 @@ choix_pondere(P, [Head|_], _, 1):-
 	!.
 
 %check
-choix_pondere(_, [Head|_], _, 1):-
+choix_pondere(P, [Head|_], _, 1):-
 	regle(Head, check),
 	!,
 	reduit(check, Head, P, _),
@@ -140,7 +140,7 @@ choix_pondere(P, [Head|_], _, 2):-
 	!,
 	deleteEquation(P, Head, ListTemp),	% on supprime l'equation E du systeme d'equation
 	reduit(rename, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, [], _, 1),		% on applique la strategie choix_pondere sur le nouveau
+	choix_pondere(Q, Q, _, 1),		% on applique la strategie choix_pondere sur le nouveau
 	!.					% systeme d'equation
 
 % simplify
@@ -149,7 +149,7 @@ choix_pondere(P, [Head|_], _, 2):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(simplify, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, [], _, 1),
+	choix_pondere(Q, Q, _, 1),
 	!.
 
 % regles non applicables dans le système d'équations
@@ -168,7 +168,7 @@ choix_pondere(P, [Head|_], _, 3):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(orient, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, [], _, 1),
+	choix_pondere(Q, Q, _, 1),
 	!.
 
 % regles non applicables dans le système d'équations
@@ -186,7 +186,7 @@ choix_pondere(P, [Head|_], _, 4):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(decompose, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, [], _, 1),
+	choix_pondere(Q, Q, _, 1),
 	!.
 
 % regles non applicables dans le système d'équations
@@ -204,7 +204,7 @@ choix_pondere(P, [Head|_], _, 5):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(expand, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, [], _, 1),
+	choix_pondere(Q, Q, _, 1),
 	!.
 
 % regles non applicables dans le système d'équations
