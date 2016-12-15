@@ -40,7 +40,7 @@ unifie(P, choix_premier) :-
 
 %unification choix pondere
 unifie(P, choix_pondere) :-
-	choix_pondere(P, P, _, 1),
+	choix_pondere(P, P, _, 0),
 	!.
 
 %unification choix aleatoire
@@ -48,6 +48,8 @@ unifie(P, choix_aleatoire) :-
 	choix_equation_aleatoire(P,_,_,_),
 	!.
 
+unifie(P, regle):- unifie(P, autreclash).
+unifie(P, regle):- unifie(P, elimination).
 unifie(P, regle):- unifie(P, rename).
 unifie(P, regle):- unifie(P, simplify).
 unifie(P, regle):- unifie(P, expand).
@@ -83,6 +85,8 @@ choix_equation_aleatoire(P,_,_,_):-
 	reduit_random([E|ListTemp], E, Q, regle),	% on essaie d'appliquer les transformations E, nouvelle liste = Q
 	choix_equation_aleatoire(Q,_,_,_).
 
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, autreclash), !, reduit(autreclash, E, ListTemp2, Q).
+reduit_random(ListTemp2, E, Q, regle) :- regle(E, elimination), !, reduit(elimination, E, ListTemp2, Q).
 reduit_random(ListTemp2, E, Q, regle) :- regle(E, rename), !, reduit(rename, E, ListTemp2, Q).
 reduit_random(ListTemp2, E, Q, regle) :- regle(E, simplify), !, reduit(simplify, E, ListTemp2, Q).
 reduit_random(ListTemp2, E, Q, regle) :- regle(E, expand), !, reduit(expand, E, ListTemp2, Q).
@@ -93,6 +97,7 @@ reduit_random(ListTemp2, E, Q, regle) :- regle(E, clash), !, reduit(clash, E, Li
 
 %%%%%%%%
 
+	% niveau 0: autreclash, elimination
 	% niveau 1: clash, check
 	% niveau 2: rename, simplify
 	% niveau 3: orient
@@ -101,6 +106,10 @@ reduit_random(ListTemp2, E, Q, regle) :- regle(E, clash), !, reduit(clash, E, Li
 
 choix_pondere([], _, _, _):-
 	true.
+
+choix_pondere(P, [], _, 0):-		% passage au niveau 1
+	choix_pondere(P, P, _, 1),
+	!.
 
 choix_pondere(P, [], _, 1):-		% passage au niveau 2
 	choix_pondere(P, P, _, 2),
@@ -124,6 +133,31 @@ choix_pondere(_, [], _, 5):-
 	!.
 
 %%%%%%%%
+
+%%%% autreclash, elimination (niveau 0)
+
+%clash
+choix_pondere(P, [Head|_], _, 0):-
+	regle(Head , autreclash),
+	!,
+ 	reduit(autreclash, Head, P, _),
+	!.
+
+%check
+choix_pondere(P, [Head|_], _, 0):-
+	regle(Head, elimination),
+	!,
+	reduit(elimination, Head, P, _),
+	!.
+
+% regles non applicables dans le système d'équations
+choix_pondere(P, [Head|Tail], _, 0):-
+	\+regle(Head, autreclash),
+	\+regle(Head, elimination),
+	!,
+	choix_pondere(P, Tail, _, 0),		% on essaye d'appliquer les transformations de niveau 1
+	!.					% sur l'equation suivante
+
 
 %%%% clash, check (niveau 1)
 
@@ -157,7 +191,7 @@ choix_pondere(P, [Head|_], _, 2):-
 	!,
 	deleteEquation(P, Head, ListTemp),	% on supprime l'equation E du systeme d'equation
 	reduit(rename, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, Q, _, 1),		% on applique la strategie choix_pondere sur le nouveau
+	choix_pondere(Q, Q, _, 0),		% on applique la strategie choix_pondere sur le nouveau
 	!.					% systeme d'equation
 
 % simplify
@@ -166,7 +200,7 @@ choix_pondere(P, [Head|_], _, 2):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(simplify, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, Q, _, 1),
+	choix_pondere(Q, Q, _, 0),
 	!.
 
 % regles non applicables dans le système d'équations
@@ -185,7 +219,7 @@ choix_pondere(P, [Head|_], _, 3):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(orient, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, Q, _, 1),
+	choix_pondere(Q, Q, _, 0),
 	!.
 
 % regles non applicables dans le système d'équations
@@ -203,7 +237,7 @@ choix_pondere(P, [Head|_], _, 4):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(decompose, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, Q, _, 1),
+	choix_pondere(Q, Q, _, 0),
 	!.
 
 % regles non applicables dans le système d'équations
@@ -221,7 +255,7 @@ choix_pondere(P, [Head|_], _, 5):-
 	!,
 	deleteEquation(P, Head, ListTemp),
 	reduit(expand, Head, [Head|ListTemp], Q),
-	choix_pondere(Q, Q, _, 1),
+	choix_pondere(Q, Q, _, 0),
 	!.
 
 % regles non applicables dans le système d'équations
@@ -232,6 +266,18 @@ choix_pondere(P, [Head|Tail], _, 5):-
 	!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+unifie(P, autreclash):- 
+	P = [E |_],
+	regle(E, autreclash),
+	reduit(autreclash, E, P, Q),
+	unifie(Q, regle),!.
+
+unifie(P, elimination):- 
+	P = [E |_],
+	regle(E, elimination),
+	reduit(elimination, E, P, Q),
+	unifie(Q, regle),!.
 
 unifie(P, rename) :- % Placer dans Q le resultat de l'unification avec la transformation rename
 	P = [E |_], % Placer dans E la tete du systeme d'equation P
@@ -280,7 +326,20 @@ unifie(P, clash):-
 % Transformation du système d'équations P en un système d'équations Q par application de la règle de transformation à l'équation E
 
 
-% reduit sur regle decompose - en cours
+reduit(autreclash, E, P, _):-
+	echo('\tsystem: '),echo(P),nl,
+	echo('\tclashcons: '),echo(E),nl,
+	fail,
+	!.
+
+reduit(elimination, E,P, Q):-
+	echo('\tsystem: '),echo(P),nl, % Affichage des etapes pour le trace_unif
+	echo('\telimination: '),echo(E),nl,
+	splitEquation(E,X,T),
+	P = [_|Tail],
+	Q = Tail.
+
+
 reduit(decompose, E, P, Q):-
 	echo('\tsystem: '),echo(P),nl, % Affichage des etapes pour le trace_unif
 	echo('\tdecompose: '),echo(E),nl,

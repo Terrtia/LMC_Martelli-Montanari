@@ -1,3 +1,15 @@
+regle(E, autreclash):-
+	splitEquation(E,X,T),
+	atomic(X),
+	atomic(T),
+	not(T == X).
+
+regle(E, elimination):-
+	splitEquation(E,X,T),
+	atomic(T),
+	atomic(X),
+	T == X.
+
 regle(E, rename):-
 	splitEquation(E,X,T),
 	var(T),
